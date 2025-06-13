@@ -12,8 +12,14 @@ using OpenAPI;
 @info(#{ version: "1.0.0" })
 namespace FacilityReservationAPI;
 
+@error
+model UnexpectedError {
+  code: "INTERNAL_SERVER_ERROR";
+  message: string;
+}
+
 model ProblemDetails {
-  @header("content-type") contentType: "application/problem+json";
+  @header("content-type") contentType: "application/problem+json" | "application/json";
 
   /**
    * A URI reference [RFC3986] that identifies the problem type.
@@ -42,9 +48,8 @@ model ProblemDetails {
 }
 
 @format("email")
+@maxLength(254)
 scalar EmailString extends string;
-
-alias OptionalEmail = EmailString | "";
 
 /**
  * Serializer for admin-level access to user objects, including staff status and hyperlinked self-reference.
@@ -60,9 +65,8 @@ model AdminUser {
   @pattern("^[\\w.@+-]+$")
   username: string;
 
-  @maxLength(254)
   @summary("Email address")
-  email?: OptionalEmail;
+  email?: EmailString;
 
   /**
    * Designates whether the user can log into this admin site.
@@ -86,56 +90,6 @@ model CurrentUser {
   @format("email")
   @summary("Email address")
   email?: string;
-}
-
-/**
- * Serializer for admin-level access to user objects, including staff status and hyperlinked self-reference.
- */
-model PatchedAdminUser {
-  @visibility(Lifecycle.Read)
-  id?: integer;
-  @visibility(Lifecycle.Read)
-  url?: url;
-
-  @doc("Required. 150 characters or fewer. Letters, digits and @/./+/-/_ only.")
-  @maxLength(150)
-  @pattern("^[\\w.@+-]+$")
-  username?: string;
-
-  @maxLength(254)
-  @format("email")
-  @summary("Email address")
-  email?: string;
-
-  /**
-   * Designates whether the user can log into this admin site.
-   */
-  @summary("Staff status") is_staff?: boolean;
-}
-
-model PatchedPublicFacility {
-  @visibility(Lifecycle.Read)
-  id?: integer;
-
-  /**
-   * Display name of the facility. Visible to users.
-   */
-  @maxLength(100) name?: string;
-
-  /**
-   * Optional description of the facility, including usage rules or details.
-   */
-  description?: string;
-
-  /**
-   * Physical location or address of the facility.
-   */
-  @maxLength(255) location?: string;
-
-  /**
-   * Display priority. Lower numbers appear earlier in sorted lists.
-   */
-  @minValue(0) priority?: int64;
 }
 
 model PublicFacility {
@@ -180,7 +134,7 @@ model PublicFacility {
 @route("/api/v1/admin/users/")
 @get
 @summary("List all users")
-op admin_users_list(): UnauthorizedResponse & ProblemDetails | ForbiddenResponse & ProblemDetails | Body<AdminUser[]>;
+op admin_users_list(): UnauthorizedResponse & ProblemDetails | ForbiddenResponse & ProblemDetails | Body<AdminUser[]> | UnexpectedError;
 
 /**
  * Create a new user account. Admin access required.
@@ -193,7 +147,7 @@ op admin_users_create(
   @header
   contentType: "application/json",
   @body body: AdminUser,
-): BadRequestResponse & ProblemDetails | NotFoundResponse & ProblemDetails | CreatedResponse & AdminUser;
+): BadRequestResponse & ProblemDetails | NotFoundResponse & ProblemDetails | CreatedResponse & AdminUser | UnexpectedError;
 
 /**
  * Delete the user with the given ID. Admin access required.
@@ -207,7 +161,7 @@ op admin_users_destroy(
    * A unique integer value identifying this user.
    */
   @path id: integer,
-): UnauthorizedResponse & ProblemDetails | ForbiddenResponse & ProblemDetails | BadRequestResponse & ProblemDetails | NotFoundResponse & ProblemDetails | NoContentResponse;
+): UnauthorizedResponse & ProblemDetails | ForbiddenResponse & ProblemDetails | BadRequestResponse & ProblemDetails | NotFoundResponse & ProblemDetails | NoContentResponse | UnexpectedError;
 
 /**
  * Fetch details of a specific user by ID. Admin access required.
@@ -221,7 +175,7 @@ op admin_users_retrieve(
    * A unique integer value identifying this user.
    */
   @path id: integer,
-): UnauthorizedResponse & ProblemDetails | ForbiddenResponse & ProblemDetails | NotFoundResponse & ProblemDetails | AdminUser;
+): UnauthorizedResponse & ProblemDetails | ForbiddenResponse & ProblemDetails | NotFoundResponse & ProblemDetails | AdminUser | UnexpectedError;
 
 /**
  * Update select fields of a user. Admin access required.
@@ -238,8 +192,8 @@ op admin_users_partial_update(
 
   @header
   contentType: "application/merge-patch+json",
-  @body body: MergePatchUpdate<PatchedAdminUser>,
-): UnauthorizedResponse & ProblemDetails | ForbiddenResponse & ProblemDetails | BadRequestResponse & ProblemDetails | NotFoundResponse & ProblemDetails | AdminUser;
+  @body body: MergePatchUpdate<AdminUser>,
+): UnauthorizedResponse & ProblemDetails | ForbiddenResponse & ProblemDetails | BadRequestResponse & ProblemDetails | NotFoundResponse & ProblemDetails | AdminUser | UnexpectedError;
 
 /**
  * Update an existing user's full data by ID. Admin access required.
@@ -257,7 +211,7 @@ op admin_users_update(
   @header
   contentType: "application/json",
   @body body: AdminUser,
-): BadRequestResponse & ProblemDetails | NotFoundResponse & ProblemDetails | AdminUser;
+): BadRequestResponse & ProblemDetails | NotFoundResponse & ProblemDetails | AdminUser | UnexpectedError;
 
 /**
  * Returns a list of all active facilities. No authentication required.
@@ -266,7 +220,7 @@ op admin_users_update(
 @route("/api/v1/facilities/")
 @get
 @summary("List all public facilities")
-op facilities_list(): Body<PublicFacility[]>;
+op facilities_list(): Body<PublicFacility[]> | UnexpectedError;
 
 /**
  * Creates a new facility. Only administrators are authorized.
@@ -279,7 +233,7 @@ op facilities_create(
   @header
   contentType: "application/json",
   @body body: PublicFacility,
-): ForbiddenResponse & ProblemDetails | BadRequestResponse & ProblemDetails | CreatedResponse & PublicFacility;
+): ForbiddenResponse & ProblemDetails | BadRequestResponse & ProblemDetails | CreatedResponse & PublicFacility | UnexpectedError;
 
 /**
  * Deletes a facility. Only administrators are authorized.
@@ -293,7 +247,7 @@ op facilities_destroy(
    * A unique integer value identifying this Facility.
    */
   @path id: integer,
-): BadRequestResponse & ProblemDetails | NotFoundResponse & ProblemDetails | NoContentResponse;
+): BadRequestResponse & ProblemDetails | NotFoundResponse & ProblemDetails | NoContentResponse | UnexpectedError;
 
 /**
  * Returns detailed information about a specific facility. No authentication required.
@@ -307,7 +261,7 @@ op facilities_retrieve(
    * A unique integer value identifying this Facility.
    */
   @path id: integer,
-): NotFoundResponse & ProblemDetails | PublicFacility;
+): NotFoundResponse & ProblemDetails | PublicFacility | UnexpectedError;
 
 /**
  * Updates select fields of a facility. Only administrators are authorized.
@@ -323,9 +277,9 @@ op facilities_partial_update(
   @path id: integer,
 
   @header
-  contentType: "application/merge-patch+json",
-  @body body: MergePatchUpdate<PatchedPublicFacility>,
-): BadRequestResponse & ProblemDetails | NotFoundResponse & ProblemDetails | PublicFacility;
+  contentType: "application/merge-patch+json" | "application/json",
+  @body body: MergePatchUpdate<PublicFacility>,
+): BadRequestResponse & ProblemDetails | NotFoundResponse & ProblemDetails | PublicFacility | UnexpectedError;
 
 /**
  * Updates an existing facility. Only administrators are authorized.
@@ -343,7 +297,7 @@ op facilities_update(
   @header
   contentType: "application/json",
   @body body: PublicFacility,
-): BadRequestResponse & ProblemDetails | NotFoundResponse & ProblemDetails | PublicFacility;
+): BadRequestResponse & ProblemDetails | NotFoundResponse & ProblemDetails | PublicFacility | UnexpectedError;
 
 /**
  * Returns basic profile information of the currently authenticated user.
@@ -352,4 +306,4 @@ op facilities_update(
 @route("/api/v1/me/")
 @get
 @summary("Retrieve current authenticated user")
-op me_retrieve(): UnauthorizedResponse & ProblemDetails | CurrentUser;
+op me_retrieve(): UnauthorizedResponse & ProblemDetails | CurrentUser | UnexpectedError;
