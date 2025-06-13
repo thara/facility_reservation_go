@@ -13,3 +13,8 @@ fmt:
 .PHONY: lint
 lint:
 	golangci-lint run -v
+
+actionlint:
+	actionlint
+	ghalint run
+	pinact run
