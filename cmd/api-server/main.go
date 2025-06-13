@@ -1,3 +1,4 @@
+// Package main provides the HTTP server entry point for the facility reservation API.
 package main
 
 import (
@@ -13,6 +14,11 @@ import (
 
 	"github.com/thara/facility_reservation_go/internal"
 	"github.com/thara/facility_reservation_go/oas"
+)
+
+const (
+	readHeaderTimeout = 30 * time.Second
+	shutdownTimeout   = 30 * time.Second
 )
 
 var addr string
@@ -38,13 +44,12 @@ func main() {
 	defer stop()
 
 	if err := run(ctx); err != nil {
-		slog.Error("server failed", "error", err)
-		os.Exit(1)
+		slog.ErrorContext(ctx, "server failed", "error", err)
 	}
 }
 
 func run(ctx context.Context) error {
-	svc := &internal.Service{}
+	svc := &internal.Service{} //nolint:exhaustruct // Unimplemented
 
 	handler, err := oas.NewServer(svc)
 	if err != nil {
@@ -52,28 +57,28 @@ func run(ctx context.Context) error {
 	}
 
 	server := &http.Server{
-		Addr:    addr,
-		Handler: handler,
+		Addr:              addr,
+		Handler:           handler,
+		ReadHeaderTimeout: readHeaderTimeout,
 	}
 
 	go func() {
-		slog.Info("starting server", "addr", addr)
+		slog.InfoContext(ctx, "starting server", "addr", addr)
 		if err := server.ListenAndServe(); err != nil && err != http.ErrServerClosed {
-			slog.Error("failed to start server", "error", err)
-			os.Exit(1)
+			slog.ErrorContext(ctx, "failed to start server", "error", err)
 		}
 	}()
 
 	<-ctx.Done()
-	slog.Info("shutting down server")
+	slog.InfoContext(ctx, "shutting down server")
 
-	shutdownCtx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+	shutdownCtx, cancel := context.WithTimeout(context.Background(), shutdownTimeout)
 	defer cancel()
 
 	if err := server.Shutdown(shutdownCtx); err != nil {
 		return fmt.Errorf("server forced to shutdown: %w", err)
 	}
 
-	slog.Info("server exited")
+	slog.InfoContext(ctx, "server exited")
 	return nil
 }
