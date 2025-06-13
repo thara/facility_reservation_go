@@ -138,9 +138,9 @@ model PublicFacility {
 @get
 @summary("List all users")
 op admin_users_list():
+  | Body<AdminUser[]>
   | (UnauthorizedResponse & ProblemDetails)
   | (ForbiddenResponse & ProblemDetails)
-  | Body<AdminUser[]>
   | UnexpectedError;
 
 /**
@@ -156,9 +156,9 @@ op admin_users_create(
 
   @body body: AdminUser,
 ):
+  | (CreatedResponse & AdminUser)
   | (BadRequestResponse & ProblemDetails)
   | (NotFoundResponse & ProblemDetails)
-  | (CreatedResponse & AdminUser)
   | UnexpectedError;
 
 /**
@@ -174,11 +174,11 @@ op admin_users_destroy(
    */
   @path id: integer,
 ):
+  | NoContentResponse
   | (UnauthorizedResponse & ProblemDetails)
   | (ForbiddenResponse & ProblemDetails)
   | (BadRequestResponse & ProblemDetails)
   | (NotFoundResponse & ProblemDetails)
-  | NoContentResponse
   | UnexpectedError;
 
 /**
@@ -194,10 +194,10 @@ op admin_users_retrieve(
    */
   @path id: integer,
 ):
+  | AdminUser
   | (UnauthorizedResponse & ProblemDetails)
   | (ForbiddenResponse & ProblemDetails)
   | (NotFoundResponse & ProblemDetails)
-  | AdminUser
   | UnexpectedError;
 
 /**
@@ -218,11 +218,11 @@ op admin_users_partial_update(
 
   @body body: MergePatchUpdate<AdminUser>,
 ):
+  | AdminUser
   | (UnauthorizedResponse & ProblemDetails)
   | (ForbiddenResponse & ProblemDetails)
   | (BadRequestResponse & ProblemDetails)
   | (NotFoundResponse & ProblemDetails)
-  | AdminUser
   | UnexpectedError;
 
 /**
@@ -243,9 +243,9 @@ op admin_users_update(
 
   @body body: AdminUser,
 ):
+  | AdminUser
   | (BadRequestResponse & ProblemDetails)
   | (NotFoundResponse & ProblemDetails)
-  | AdminUser
   | UnexpectedError;
 
 /**
@@ -270,9 +270,9 @@ op facilities_create(
 
   @body body: PublicFacility,
 ):
+  | (CreatedResponse & PublicFacility)
   | (ForbiddenResponse & ProblemDetails)
   | (BadRequestResponse & ProblemDetails)
-  | (CreatedResponse & PublicFacility)
   | UnexpectedError;
 
 /**
@@ -288,9 +288,9 @@ op facilities_destroy(
    */
   @path id: integer,
 ):
+  | NoContentResponse
   | (BadRequestResponse & ProblemDetails)
   | (NotFoundResponse & ProblemDetails)
-  | NoContentResponse
   | UnexpectedError;
 
 /**
@@ -325,9 +325,9 @@ op facilities_partial_update(
 
   @body body: MergePatchUpdate<PublicFacility>,
 ):
+  | PublicFacility
   | (BadRequestResponse & ProblemDetails)
   | (NotFoundResponse & ProblemDetails)
-  | PublicFacility
   | UnexpectedError;
 
 /**
@@ -348,9 +348,9 @@ op facilities_update(
 
   @body body: PublicFacility,
 ):
+  | PublicFacility
   | (BadRequestResponse & ProblemDetails)
   | (NotFoundResponse & ProblemDetails)
-  | PublicFacility
   | UnexpectedError;
 
 /**
@@ -360,5 +360,5 @@ op facilities_update(
 @route("/api/v1/me/")
 @get
 @summary("Retrieve current authenticated user")
-op me_retrieve(): (UnauthorizedResponse &
-  ProblemDetails) | CurrentUser | UnexpectedError;
+op me_retrieve(): CurrentUser | (UnauthorizedResponse &
+  ProblemDetails) | UnexpectedError;
