@@ -56,9 +56,13 @@ func run(ctx context.Context) error {
 		return fmt.Errorf("failed to create server: %w", err)
 	}
 
+	// Wrap handler with middleware (recovery first, then logging)
+	recoveredHandler := internal.RecoveryMiddleware(handler)
+	loggedHandler := internal.LoggingMiddleware(recoveredHandler)
+
 	server := &http.Server{
 		Addr:              addr,
-		Handler:           handler,
+		Handler:           loggedHandler,
 		ReadHeaderTimeout: readHeaderTimeout,
 	}
 
