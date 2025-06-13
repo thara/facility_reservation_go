@@ -2,14 +2,17 @@ generator:
   features:
     enable:
       # Enables paths client generation
-      - "paths/client"
+      # - "paths/client"
       # Enables paths server generation
       - "paths/server"
       # Enables validation of client requests
-      - "client/request/validation"
+      # - "client/request/validation"
       # Enables validation of server responses
       - "server/response/validation"
       # Enables OpenTelemetry integration
-      - "ogen/otel"
+      # - "ogen/otel"
+      - 'ogen/unimplemented'
+      # - 'debug/example_tests'
+    disable_all: true
   ignore_not_implemented: ["all"]
   convenient_errors: "auto"
