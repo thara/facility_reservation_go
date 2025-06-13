@@ -3,8 +3,9 @@ package main
 import (
 	"context"
 	"fmt"
-	"log"
+	"log/slog"
 	"net/http"
+	"os"
 	"os/signal"
 	"syscall"
 	"time"
@@ -13,12 +14,26 @@ import (
 	"github.com/thara/facility_reservation_go/oas"
 )
 
+func init() {
+	var handler slog.Handler
+	env := os.Getenv("ENV")
+	if env == "production" {
+		handler = slog.NewJSONHandler(os.Stdout, nil)
+	} else {
+		handler = slog.NewTextHandler(os.Stdout, nil)
+	}
+	
+	logger := slog.New(handler)
+	slog.SetDefault(logger)
+}
+
 func main() {
 	ctx, stop := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
 	defer stop()
 
 	if err := run(ctx); err != nil {
-		log.Fatalf("server failed: %v", err)
+		slog.Error("server failed", "error", err)
+		os.Exit(1)
 	}
 }
 
@@ -36,14 +51,15 @@ func run(ctx context.Context) error {
 	}
 
 	go func() {
-		log.Println("starting server on :8080")
+		slog.Info("starting server", "addr", ":8080")
 		if err := server.ListenAndServe(); err != nil && err != http.ErrServerClosed {
-			log.Fatalf("failed to start server: %v", err)
+			slog.Error("failed to start server", "error", err)
+			os.Exit(1)
 		}
 	}()
 
 	<-ctx.Done()
-	log.Println("shutting down server...")
+	slog.Info("shutting down server")
 
 	shutdownCtx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
@@ -52,6 +68,6 @@ func run(ctx context.Context) error {
 		return fmt.Errorf("server forced to shutdown: %w", err)
 	}
 
-	log.Println("server exited")
+	slog.Info("server exited")
 	return nil
 }
