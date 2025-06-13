@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"flag"
 	"fmt"
 	"log/slog"
 	"net/http"
@@ -14,7 +15,12 @@ import (
 	"github.com/thara/facility_reservation_go/oas"
 )
 
+var addr string
+
 func init() {
+	flag.StringVar(&addr, "addr", ":8080", "HTTP server address")
+	flag.Parse()
+
 	var handler slog.Handler
 	env := os.Getenv("ENV")
 	if env == "production" {
@@ -22,7 +28,7 @@ func init() {
 	} else {
 		handler = slog.NewTextHandler(os.Stdout, nil)
 	}
-	
+
 	logger := slog.New(handler)
 	slog.SetDefault(logger)
 }
@@ -46,12 +52,12 @@ func run(ctx context.Context) error {
 	}
 
 	server := &http.Server{
-		Addr:    ":8080",
+		Addr:    addr,
 		Handler: handler,
 	}
 
 	go func() {
-		slog.Info("starting server", "addr", ":8080")
+		slog.Info("starting server", "addr", addr)
 		if err := server.ListenAndServe(); err != nil && err != http.ErrServerClosed {
 			slog.Error("failed to start server", "error", err)
 			os.Exit(1)
