@@ -135,7 +135,7 @@ model PatchedPublicFacility {
   /**
    * Display priority. Lower numbers appear earlier in sorted lists.
    */
-  @minValue(0) @maxValue(9223372036854776000) priority?: int64;
+  @minValue(0) priority?: int64;
 }
 
 model PublicFacility {
@@ -160,7 +160,7 @@ model PublicFacility {
   /**
    * Display priority. Lower numbers appear earlier in sorted lists.
    */
-  @minValue(0) @maxValue(9223372036854776000) priority?: int64;
+  @minValue(0) priority?: int64;
 
   /**
    * Set to false to disable this facility from public listing or reservation.
