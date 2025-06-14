@@ -13,11 +13,26 @@ make ogen
 make tsp
 ```
 
-### Database Operations
+### Local Database Setup
 ```bash
+# Start PostgreSQL with Docker Compose
+make db-up
+
+# Stop database
+make db-down
+
+# View database logs
+make db-logs
+
+# Clean database (removes all data)
+make db-clean
+
 # Setup database schema and generate Go code
 make db-setup
+```
 
+### Database Operations
+```bash
 # Apply schema changes to database
 make atlas-apply
 
@@ -29,6 +44,18 @@ make atlas-status
 
 # Preview schema changes
 make atlas-diff
+```
+
+### Testing
+```bash
+# Run unit tests (skip integration tests)
+make test-short
+
+# Run all tests (including skipped integration tests)
+make test
+
+# Run integration tests with test database
+make test-integration
 ```
 
 ### Development Tools Installation
@@ -90,10 +117,15 @@ The API provides three main endpoint groups:
 
 ### Database Connection
 
-The application requires PostgreSQL and uses these connection methods:
-- **Default**: `postgres://postgres:postgres@localhost:5432/facility_reservation_dev?sslmode=disable`
-- **Environment**: Set `DATABASE_URL` environment variable
+The application uses PostgreSQL with Docker Compose for local development:
+- **Development DB**: `postgres://postgres:postgres@localhost:5432/facility_reservation_dev?sslmode=disable`
+- **Test DB**: `postgres://postgres:postgres@localhost:5433/facility_reservation_test?sslmode=disable`
+- **Environment**: Set `DATABASE_URL` environment variable to override
 - **CLI Flag**: Use `-database-url` command line argument
+
+### Prerequisites
+- Docker and Docker Compose installed
+- Ports 5432 and 5433 available on localhost
 
 ### Important Notes
 

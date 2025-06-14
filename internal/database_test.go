@@ -2,6 +2,7 @@ package internal
 
 import (
 	"context"
+	"os"
 	"testing"
 	"time"
 
@@ -128,8 +129,8 @@ func TestDatabaseService_ConnectionPoolConfiguration(t *testing.T) {
 func getTestDatabaseURL() string {
 	// Check for test-specific database URL
 	// In CI/CD or local testing, set TEST_DATABASE_URL
-	// Example: postgres://postgres:postgres@localhost:5432/facility_reservation_test?sslmode=disable
-	return "" // Return empty to skip tests by default
+	// Example: postgres://postgres:postgres@localhost:5433/facility_reservation_test?sslmode=disable
+	return os.Getenv("TEST_DATABASE_URL")
 }
 
 // TestDatabaseService_Integration runs integration tests if database is available

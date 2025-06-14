@@ -23,8 +23,8 @@ env "dev" {
 
 env "test" {
   src = data.external_schema.app.url
-  dev = "postgres://postgres:postgres@localhost:5432/facility_reservation_test?sslmode=disable"
-  url = "postgres://postgres:postgres@localhost:5432/facility_reservation_test?sslmode=disable"
+  dev = "postgres://postgres:postgres@localhost:5433/facility_reservation_test?sslmode=disable"
+  url = "postgres://postgres:postgres@localhost:5433/facility_reservation_test?sslmode=disable"
   
   migration {
     dir = "file://migrations"
