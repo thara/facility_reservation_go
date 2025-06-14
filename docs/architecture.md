@@ -4,6 +4,11 @@
 
 Based on arc42 architecture documentation template
 
+## Related Documentation
+
+- **[Architecture Decision Records (ADRs)](adr/)** - Key architectural decisions and their rationale
+- **[Design Documents](design-docs/)** - Detailed designs for complex systems and workflows
+
 ---
 
 ## 1. Introduction and Goals
@@ -119,12 +124,12 @@ graph TB
 
 ### 4.1 Technology Decisions
 
-| Decision | Rationale |
-|----------|-----------|
-| **TypeSpec + ogen** | Generate type-safe HTTP handlers from OpenAPI specification |
-| **sqlc** | Generate type-safe Go code from SQL queries |
-| **Atlas** | Schema-as-code database migrations |
-| **pgx** | High-performance PostgreSQL driver with connection pooling |
+| Decision | Rationale | Reference |
+|----------|-----------|-----------|
+| **TypeSpec + ogen** | Generate type-safe HTTP handlers from OpenAPI specification | [ADR-001](adr/0001-use-typespec-over-openapi-yaml.md) |
+| **sqlc** | Generate type-safe Go code from SQL queries | [ADR-002](adr/0002-use-sqlc-over-orm.md) |
+| **Atlas** | Schema-as-code database migrations | - |
+| **pgx** | High-performance PostgreSQL driver with connection pooling | - |
 
 ### 4.2 Top-Level Decomposition
 
@@ -355,7 +360,7 @@ graph TB
 
 ### 8.1 Code Generation Strategy
 
-The system uses multiple code generators to maintain consistency:
+The system uses multiple code generators to maintain consistency. See [Code Generation Pipeline](design-docs/001-code-generation-pipeline.md) for detailed implementation and [API Contract Ecosystem](design-docs/002-api-contract-ecosystem.md) for client generation strategy:
 
 ```mermaid
 graph TB
@@ -427,7 +432,7 @@ graph TB
 
 **Explicit Behavior Policy:**
 
-This system enforces **explicit behavior over implicit database operations** to maintain code clarity and debuggability.
+This system enforces **explicit behavior over implicit database operations** to maintain code clarity and debuggability. See [ADR-003](adr/0003-avoid-database-triggers.md) for detailed rationale.
 
 | Policy | Rationale | Implementation |
 |--------|-----------|----------------|
@@ -590,11 +595,13 @@ WHERE id = $2
 
 | Command | Purpose |
 |---------|---------|
-| **make build-dev** | Complete development build pipeline |
+| **make build_dev** | Complete development build pipeline |
 | **make ogen** | Generate API handlers from TypeSpec |
 | **make sqlc-generate** | Generate database code from SQL |
 | **make atlas-apply** | Apply schema changes to database |
 | **make db-setup** | Setup complete database environment |
+
+For complete development workflows, see [Development Workflow](design-docs/003-development-workflow.md).
 
 ---
 
