@@ -85,7 +85,7 @@ This is a facility reservation API built with a **database-first** approach usin
 - **`spec/main.tsp`**: TypeSpec API specification defining all endpoints, models, and operations
 - **`schema/schema.sql`**: Database schema (source of truth) used by both Atlas and sqlc
 - **`queries/*.sql`**: SQL queries for CRUD operations, compiled by sqlc to Go code
-- **`oas/`**: Auto-generated Go server code (handlers, schemas, validators) - DO NOT EDIT manually
+- **`api/`**: Auto-generated Go server code (handlers, schemas, validators) - DO NOT EDIT manually
 - **`internal/db/`**: Auto-generated Go database code from sqlc - DO NOT EDIT manually
 - **`internal/service.go`**: Business logic implementation with database integration
 - **`internal/database.go`**: Database service with connection pooling
@@ -127,11 +127,54 @@ The application uses PostgreSQL with Docker Compose for local development:
 - Docker and Docker Compose installed
 - Ports 5432 and 5433 available on localhost
 
+## Unit Test Strategy
+
+### Test Organization
+
+Tests are organized using **external test packages** to enforce proper encapsulation:
+- **Package Name**: Use `package internal_test` instead of `package internal`
+- **Import Required**: Must import `"github.com/thara/facility_reservation_go/internal"` 
+- **Access Control**: Can only access exported functions, types, and fields
+
+### Testing Principles
+
+1. **Test Behavior, Not Implementation**
+   - Focus on public API and expected outcomes
+   - Avoid testing internal state or implementation details
+   - Test what the code does, not how it does it
+
+2. **No Unexported Field Access**
+   - Never access unexported struct fields (e.g., `service.db`, `db.pool`)
+   - Use public methods to verify behavior instead
+   - If you need to test internal state, consider exposing it through public methods
+
+3. **Context Usage**
+   - Use `t.Context()` instead of `context.Background()` in tests
+   - Provides proper timeout handling and cancellation
+   - Integrates with Go's testing framework
+
+4. **Database Testing**
+   - **Unit Tests**: Use `make test-short` - skip database integration
+   - **Integration Tests**: Use `make test-integration` - requires real database
+   - **Test Database**: Separate PostgreSQL instance on port 5433
+   - **Schema Application**: Automatically applied before integration tests
+
+### Testing Guidelines
+
+- **DO NOT USE any unexported fields in tests**
+- **Test only through exported functions and methods**
+- **Use external test packages to enforce proper encapsulation**
+- **Mock Dependencies**: Use nil or mock implementations for unit tests
+- **Test Coverage**: Focus on business logic and error handling
+- **Integration Tests**: Test with real database for database-dependent functionality
+- **Concurrent Safety**: Use `for range 10` syntax for concurrent test loops
+- **Error Wrapping**: Verify error messages contain expected context
+
 ### Important Notes
 
 - **Schema as Code**: `schema/schema.sql` is the single source of truth for database structure
 - **Type Safety**: sqlc generates type-safe Go structs and functions from SQL queries
-- **Auto-generated Code**: Never edit files in `oas/` or `internal/db/` directories
+- **Auto-generated Code**: Never edit files in `api/` or `internal/db/` directories
 - **Atlas Migration**: Atlas automatically calculates and applies schema changes
 - **Connection Pooling**: Uses pgx connection pool with configurable limits
 - **Graceful Shutdown**: Database connections are properly closed on server shutdown
