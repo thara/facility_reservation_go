@@ -6,7 +6,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 **MANDATORY**: After making ANY code edits, you MUST run:
 ```bash
-make build-dev
+make build_dev
 ```
 
 This command performs the complete development build pipeline:
