@@ -1,12 +1,12 @@
 package internal
 
 import (
-	"github.com/thara/facility_reservation_go/oas"
+	"github.com/thara/facility_reservation_go/api"
 )
 
 // Service implements the facility reservation API handlers by embedding the generated handler interface.
 type Service struct {
-	oas.UnimplementedHandler
+	api.UnimplementedHandler
 	db *DatabaseService
 }
 

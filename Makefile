@@ -4,7 +4,7 @@ tsp:
 
 .PHONY: ogen
 ogen: tsp
-	ogen -target oas -package oas --clean ./spec/tsp-output/schema/3.1.0/openapi.yaml
+	ogen -target api -package api --clean ./spec/tsp-output/schema/3.1.0/openapi.yaml
 
 .PHONY: format
 fmt:

@@ -12,7 +12,7 @@ import (
 	"time"
 
 	"github.com/thara/facility_reservation_go/internal"
-	"github.com/thara/facility_reservation_go/oas"
+	"github.com/thara/facility_reservation_go/api"
 )
 
 const (
@@ -72,7 +72,7 @@ func run(ctx context.Context) error {
 	// Create service with database dependency
 	svc := internal.NewService(db)
 
-	handler, err := oas.NewServer(svc)
+	handler, err := api.NewServer(svc)
 	if err != nil {
 		return fmt.Errorf("failed to create server: %w", err)
 	}
