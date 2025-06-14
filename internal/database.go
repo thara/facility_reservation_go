@@ -43,7 +43,7 @@ func NewDatabaseService(ctx context.Context, databaseURL string) (*DatabaseServi
 
 	return &DatabaseService{
 		pool:    pool,
-		queries: db.New(pool),
+		queries: db.New(),
 	}, nil
 }
 

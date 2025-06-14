@@ -32,8 +32,8 @@ type CreateUserRow struct {
 	UpdatedAt time.Time `json:"updated_at"`
 }
 
-func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (CreateUserRow, error) {
-	row := q.db.QueryRow(ctx, createUser,
+func (q *Queries) CreateUser(ctx context.Context, db DBTX, arg CreateUserParams) (CreateUserRow, error) {
+	row := db.QueryRow(ctx, createUser,
 		arg.Username,
 		arg.Email,
 		arg.IsStaff,
@@ -56,8 +56,8 @@ DELETE FROM users
 WHERE id = $1
 `
 
-func (q *Queries) DeleteUser(ctx context.Context, id int32) error {
-	_, err := q.db.Exec(ctx, deleteUser, id)
+func (q *Queries) DeleteUser(ctx context.Context, db DBTX, id int32) error {
+	_, err := db.Exec(ctx, deleteUser, id)
 	return err
 }
 
@@ -73,8 +73,8 @@ type GetCurrentUserRow struct {
 	Email    *string `json:"email"`
 }
 
-func (q *Queries) GetCurrentUser(ctx context.Context, id int32) (GetCurrentUserRow, error) {
-	row := q.db.QueryRow(ctx, getCurrentUser, id)
+func (q *Queries) GetCurrentUser(ctx context.Context, db DBTX, id int32) (GetCurrentUserRow, error) {
+	row := db.QueryRow(ctx, getCurrentUser, id)
 	var i GetCurrentUserRow
 	err := row.Scan(&i.ID, &i.Username, &i.Email)
 	return i, err
@@ -97,8 +97,8 @@ type GetUserByIDRow struct {
 }
 
 // Users queries for admin and authentication operations
-func (q *Queries) GetUserByID(ctx context.Context, id int32) (GetUserByIDRow, error) {
-	row := q.db.QueryRow(ctx, getUserByID, id)
+func (q *Queries) GetUserByID(ctx context.Context, db DBTX, id int32) (GetUserByIDRow, error) {
+	row := db.QueryRow(ctx, getUserByID, id)
 	var i GetUserByIDRow
 	err := row.Scan(
 		&i.ID,
@@ -117,8 +117,8 @@ FROM users
 WHERE username = $1
 `
 
-func (q *Queries) GetUserByUsername(ctx context.Context, username string) (User, error) {
-	row := q.db.QueryRow(ctx, getUserByUsername, username)
+func (q *Queries) GetUserByUsername(ctx context.Context, db DBTX, username string) (User, error) {
+	row := db.QueryRow(ctx, getUserByUsername, username)
 	var i User
 	err := row.Scan(
 		&i.ID,
@@ -147,8 +147,8 @@ type ListUsersRow struct {
 	UpdatedAt time.Time `json:"updated_at"`
 }
 
-func (q *Queries) ListUsers(ctx context.Context) ([]ListUsersRow, error) {
-	rows, err := q.db.Query(ctx, listUsers)
+func (q *Queries) ListUsers(ctx context.Context, db DBTX) ([]ListUsersRow, error) {
+	rows, err := db.Query(ctx, listUsers)
 	if err != nil {
 		return nil, err
 	}
@@ -199,8 +199,8 @@ type UpdateUserRow struct {
 	UpdatedAt time.Time `json:"updated_at"`
 }
 
-func (q *Queries) UpdateUser(ctx context.Context, arg UpdateUserParams) (UpdateUserRow, error) {
-	row := q.db.QueryRow(ctx, updateUser,
+func (q *Queries) UpdateUser(ctx context.Context, db DBTX, arg UpdateUserParams) (UpdateUserRow, error) {
+	row := db.QueryRow(ctx, updateUser,
 		arg.ID,
 		arg.Username,
 		arg.Email,
@@ -229,7 +229,7 @@ type UpdateUserPasswordParams struct {
 	PasswordHash string `json:"password_hash"`
 }
 
-func (q *Queries) UpdateUserPassword(ctx context.Context, arg UpdateUserPasswordParams) error {
-	_, err := q.db.Exec(ctx, updateUserPassword, arg.ID, arg.PasswordHash)
+func (q *Queries) UpdateUserPassword(ctx context.Context, db DBTX, arg UpdateUserPasswordParams) error {
+	_, err := db.Exec(ctx, updateUserPassword, arg.ID, arg.PasswordHash)
 	return err
 }

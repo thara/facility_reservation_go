@@ -9,23 +9,23 @@ import (
 )
 
 type Querier interface {
-	CreateFacility(ctx context.Context, arg CreateFacilityParams) (Facility, error)
-	CreateUser(ctx context.Context, arg CreateUserParams) (CreateUserRow, error)
-	DeleteFacility(ctx context.Context, id int32) error
-	DeleteUser(ctx context.Context, id int32) error
-	GetCurrentUser(ctx context.Context, id int32) (GetCurrentUserRow, error)
-	GetFacilityByID(ctx context.Context, id int32) (Facility, error)
+	CreateFacility(ctx context.Context, db DBTX, arg CreateFacilityParams) (Facility, error)
+	CreateUser(ctx context.Context, db DBTX, arg CreateUserParams) (CreateUserRow, error)
+	DeleteFacility(ctx context.Context, db DBTX, id int32) error
+	DeleteUser(ctx context.Context, db DBTX, id int32) error
+	GetCurrentUser(ctx context.Context, db DBTX, id int32) (GetCurrentUserRow, error)
+	GetFacilityByID(ctx context.Context, db DBTX, id int32) (Facility, error)
 	// Users queries for admin and authentication operations
-	GetUserByID(ctx context.Context, id int32) (GetUserByIDRow, error)
-	GetUserByUsername(ctx context.Context, username string) (User, error)
-	ListAllFacilities(ctx context.Context) ([]Facility, error)
+	GetUserByID(ctx context.Context, db DBTX, id int32) (GetUserByIDRow, error)
+	GetUserByUsername(ctx context.Context, db DBTX, username string) (User, error)
+	ListAllFacilities(ctx context.Context, db DBTX) ([]Facility, error)
 	// Facilities queries for public and admin operations
-	ListFacilities(ctx context.Context) ([]Facility, error)
-	ListUsers(ctx context.Context) ([]ListUsersRow, error)
-	UpdateFacility(ctx context.Context, arg UpdateFacilityParams) (Facility, error)
-	UpdateFacilityPartial(ctx context.Context, arg UpdateFacilityPartialParams) (Facility, error)
-	UpdateUser(ctx context.Context, arg UpdateUserParams) (UpdateUserRow, error)
-	UpdateUserPassword(ctx context.Context, arg UpdateUserPasswordParams) error
+	ListFacilities(ctx context.Context, db DBTX) ([]Facility, error)
+	ListUsers(ctx context.Context, db DBTX) ([]ListUsersRow, error)
+	UpdateFacility(ctx context.Context, db DBTX, arg UpdateFacilityParams) (Facility, error)
+	UpdateFacilityPartial(ctx context.Context, db DBTX, arg UpdateFacilityPartialParams) (Facility, error)
+	UpdateUser(ctx context.Context, db DBTX, arg UpdateUserParams) (UpdateUserRow, error)
+	UpdateUserPassword(ctx context.Context, db DBTX, arg UpdateUserPasswordParams) error
 }
 
 var _ Querier = (*Queries)(nil)
