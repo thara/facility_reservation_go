@@ -1,4 +1,4 @@
-package internal
+package internal_test
 
 import (
 	"context"
@@ -8,10 +8,11 @@ import (
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+	"github.com/thara/facility_reservation_go/internal"
 )
 
 func TestNewDatabaseService(t *testing.T) {
-	ctx := context.Background()
+	ctx := t.Context()
 
 	t.Run("successful connection", func(t *testing.T) {
 		// Use test database URL - requires PostgreSQL running
@@ -20,7 +21,7 @@ func TestNewDatabaseService(t *testing.T) {
 			t.Skip("TEST_DATABASE_URL not set, skipping integration test")
 		}
 
-		ds, err := NewDatabaseService(ctx, databaseURL)
+		ds, err := internal.NewDatabaseService(ctx, databaseURL)
 		require.NoError(t, err)
 		require.NotNil(t, ds)
 		defer ds.Close()
@@ -35,7 +36,7 @@ func TestNewDatabaseService(t *testing.T) {
 	t.Run("invalid database URL", func(t *testing.T) {
 		invalidURL := "invalid://url"
 
-		ds, err := NewDatabaseService(ctx, invalidURL)
+		ds, err := internal.NewDatabaseService(ctx, invalidURL)
 		require.Error(t, err)
 		assert.Nil(t, ds)
 		assert.Contains(t, err.Error(), "failed to parse database URL")
@@ -45,7 +46,7 @@ func TestNewDatabaseService(t *testing.T) {
 		// Use non-existent database
 		badURL := "postgres://user:pass@nonexistent:5432/db"
 
-		ds, err := NewDatabaseService(ctx, badURL)
+		ds, err := internal.NewDatabaseService(ctx, badURL)
 		require.Error(t, err)
 		assert.Nil(t, ds)
 		assert.Contains(t, err.Error(), "failed to ping database")
@@ -53,13 +54,13 @@ func TestNewDatabaseService(t *testing.T) {
 }
 
 func TestDatabaseService_HealthCheck(t *testing.T) {
-	ctx := context.Background()
+	ctx := t.Context()
 	databaseURL := getTestDatabaseURL()
 	if databaseURL == "" {
 		t.Skip("TEST_DATABASE_URL not set, skipping integration test")
 	}
 
-	ds, err := NewDatabaseService(ctx, databaseURL)
+	ds, err := internal.NewDatabaseService(ctx, databaseURL)
 	require.NoError(t, err)
 	defer ds.Close()
 
@@ -69,25 +70,25 @@ func TestDatabaseService_HealthCheck(t *testing.T) {
 	})
 
 	t.Run("health check with timeout", func(t *testing.T) {
-		ctx, cancel := context.WithTimeout(ctx, 1*time.Nanosecond)
+		timeoutCtx, cancel := context.WithTimeout(ctx, 1*time.Nanosecond)
 		defer cancel()
 
 		// Give context time to expire
 		time.Sleep(1 * time.Millisecond)
 
-		err := ds.HealthCheck(ctx)
+		err := ds.HealthCheck(timeoutCtx)
 		assert.Error(t, err)
 	})
 }
 
 func TestDatabaseService_Close(t *testing.T) {
-	ctx := context.Background()
+	ctx := t.Context()
 	databaseURL := getTestDatabaseURL()
 	if databaseURL == "" {
 		t.Skip("TEST_DATABASE_URL not set, skipping integration test")
 	}
 
-	ds, err := NewDatabaseService(ctx, databaseURL)
+	ds, err := internal.NewDatabaseService(ctx, databaseURL)
 	require.NoError(t, err)
 
 	// Verify connection works before closing
@@ -103,13 +104,13 @@ func TestDatabaseService_Close(t *testing.T) {
 }
 
 func TestDatabaseService_ConnectionPoolConfiguration(t *testing.T) {
-	ctx := context.Background()
+	ctx := t.Context()
 	databaseURL := getTestDatabaseURL()
 	if databaseURL == "" {
 		t.Skip("TEST_DATABASE_URL not set, skipping integration test")
 	}
 
-	ds, err := NewDatabaseService(ctx, databaseURL)
+	ds, err := internal.NewDatabaseService(ctx, databaseURL)
 	require.NoError(t, err)
 	defer ds.Close()
 
@@ -125,7 +126,7 @@ func TestDatabaseService_ConnectionPoolConfiguration(t *testing.T) {
 }
 
 // getTestDatabaseURL returns the test database URL from environment
-// or empty string if not set
+// or empty string if not set.
 func getTestDatabaseURL() string {
 	// Check for test-specific database URL
 	// In CI/CD or local testing, set TEST_DATABASE_URL
@@ -133,13 +134,13 @@ func getTestDatabaseURL() string {
 	return os.Getenv("TEST_DATABASE_URL")
 }
 
-// TestDatabaseService_Integration runs integration tests if database is available
+// TestDatabaseService_Integration runs integration tests if database is available.
 func TestDatabaseService_Integration(t *testing.T) {
 	if testing.Short() {
 		t.Skip("skipping integration test in short mode")
 	}
 
-	ctx := context.Background()
+	ctx := t.Context()
 	databaseURL := getTestDatabaseURL()
 	if databaseURL == "" {
 		t.Skip("TEST_DATABASE_URL not set, skipping integration test")
@@ -147,11 +148,11 @@ func TestDatabaseService_Integration(t *testing.T) {
 
 	t.Run("multiple connections", func(t *testing.T) {
 		// Test that we can create multiple database services
-		ds1, err := NewDatabaseService(ctx, databaseURL)
+		ds1, err := internal.NewDatabaseService(ctx, databaseURL)
 		require.NoError(t, err)
 		defer ds1.Close()
 
-		ds2, err := NewDatabaseService(ctx, databaseURL)
+		ds2, err := internal.NewDatabaseService(ctx, databaseURL)
 		require.NoError(t, err)
 		defer ds2.Close()
 
@@ -161,20 +162,20 @@ func TestDatabaseService_Integration(t *testing.T) {
 	})
 
 	t.Run("concurrent health checks", func(t *testing.T) {
-		ds, err := NewDatabaseService(ctx, databaseURL)
+		ds, err := internal.NewDatabaseService(ctx, databaseURL)
 		require.NoError(t, err)
 		defer ds.Close()
 
 		// Run multiple health checks concurrently
 		done := make(chan error, 10)
-		for i := 0; i < 10; i++ {
+		for range 10 {
 			go func() {
 				done <- ds.HealthCheck(ctx)
 			}()
 		}
 
 		// All should succeed
-		for i := 0; i < 10; i++ {
+		for range 10 {
 			err := <-done
 			assert.NoError(t, err)
 		}

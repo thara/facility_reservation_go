@@ -9,13 +9,17 @@ import (
 	"github.com/thara/facility_reservation_go/internal/db"
 )
 
-// DatabaseService manages database connections and provides query interface
+const (
+	maxConnIdleTimeMinutes = 30
+)
+
+// DatabaseService manages database connections and provides query interface.
 type DatabaseService struct {
 	pool    *pgxpool.Pool
 	queries *db.Queries
 }
 
-// NewDatabaseService creates a new database service with connection pool
+// NewDatabaseService creates a new database service with connection pool.
 func NewDatabaseService(ctx context.Context, databaseURL string) (*DatabaseService, error) {
 	// Configure connection pool
 	config, err := pgxpool.ParseConfig(databaseURL)
@@ -27,7 +31,7 @@ func NewDatabaseService(ctx context.Context, databaseURL string) (*DatabaseServi
 	config.MaxConns = 25
 	config.MinConns = 5
 	config.MaxConnLifetime = time.Hour
-	config.MaxConnIdleTime = time.Minute * 30
+	config.MaxConnIdleTime = time.Minute * maxConnIdleTimeMinutes
 
 	// Create connection pool
 	pool, err := pgxpool.NewWithConfig(ctx, config)
@@ -47,22 +51,25 @@ func NewDatabaseService(ctx context.Context, databaseURL string) (*DatabaseServi
 	}, nil
 }
 
-// Queries returns the sqlc-generated query interface
+// Queries returns the sqlc-generated query interface.
 func (ds *DatabaseService) Queries() *db.Queries {
 	return ds.queries
 }
 
-// Pool returns the underlying connection pool for transactions
+// Pool returns the underlying connection pool for transactions.
 func (ds *DatabaseService) Pool() *pgxpool.Pool {
 	return ds.pool
 }
 
-// Close closes the database connection pool
+// Close closes the database connection pool.
 func (ds *DatabaseService) Close() {
 	ds.pool.Close()
 }
 
-// HealthCheck verifies database connectivity
+// HealthCheck verifies database connectivity.
 func (ds *DatabaseService) HealthCheck(ctx context.Context) error {
-	return ds.pool.Ping(ctx)
+	if err := ds.pool.Ping(ctx); err != nil {
+		return fmt.Errorf("database health check failed: %w", err)
+	}
+	return nil
 }

@@ -7,7 +7,6 @@ issues:
 
 formatters:
   enable:
-    - goimports
     - golines
     - gci
     - gofumpt

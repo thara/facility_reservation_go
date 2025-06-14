@@ -10,9 +10,10 @@ type Service struct {
 	db *DatabaseService
 }
 
-// NewService creates a new service with database dependency
+// NewService creates a new service with database dependency.
 func NewService(db *DatabaseService) *Service {
 	return &Service{
-		db: db,
+		UnimplementedHandler: api.UnimplementedHandler{},
+		db:                   db,
 	}
 }
