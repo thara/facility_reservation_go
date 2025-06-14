@@ -21,6 +21,12 @@ jobs:
       - name: Check build
         run: go build ./...
 
+      - name: Install golangci-lint
+        uses: golangci/golangci-lint-action@55c2c1448f86e01eaae002a5a3a9624417608d84 # v6.5.2
+        with:
+          version: latest
+          skip-cache: true
+
       - name: Install goimports
         run: go install golang.org/x/tools/cmd/goimports@latest
 
@@ -28,12 +34,6 @@ jobs:
         run: |
           make fmt
           git diff --exit-code
-
-      - name: Install golangci-lint
-        uses: golangci/golangci-lint-action@55c2c1448f86e01eaae002a5a3a9624417608d84 # v6.5.2
-        with:
-          version: latest
-          skip-cache: true
 
       - name: Run linter
         run: make lint
