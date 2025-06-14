@@ -11,8 +11,8 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/thara/facility_reservation_go/internal"
 	"github.com/thara/facility_reservation_go/api"
+	"github.com/thara/facility_reservation_go/internal"
 )
 
 const (

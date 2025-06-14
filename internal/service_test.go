@@ -28,7 +28,7 @@ func TestService_Structure(t *testing.T) {
 	t.Run("service embeds UnimplementedHandler", func(t *testing.T) {
 		svc := NewService(nil)
 		require.NotNil(t, svc)
-		
+
 		// Verify that the service has the embedded UnimplementedHandler
 		// This ensures it satisfies the ogen-generated interface
 		assert.NotNil(t, svc.UnimplementedHandler)
