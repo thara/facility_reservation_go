@@ -23,8 +23,8 @@ type CreateFacilityParams struct {
 	IsActive    bool    `json:"is_active"`
 }
 
-func (q *Queries) CreateFacility(ctx context.Context, db DBTX, arg CreateFacilityParams) (Facility, error) {
-	row := db.QueryRow(ctx, createFacility,
+func (q *Queries) CreateFacility(ctx context.Context, arg CreateFacilityParams) (Facility, error) {
+	row := q.db.QueryRow(ctx, createFacility,
 		arg.Name,
 		arg.Description,
 		arg.Location,
@@ -50,8 +50,8 @@ DELETE FROM facilities
 WHERE id = $1
 `
 
-func (q *Queries) DeleteFacility(ctx context.Context, db DBTX, id int32) error {
-	_, err := db.Exec(ctx, deleteFacility, id)
+func (q *Queries) DeleteFacility(ctx context.Context, id int32) error {
+	_, err := q.db.Exec(ctx, deleteFacility, id)
 	return err
 }
 
@@ -61,8 +61,8 @@ FROM facilities
 WHERE id = $1
 `
 
-func (q *Queries) GetFacilityByID(ctx context.Context, db DBTX, id int32) (Facility, error) {
-	row := db.QueryRow(ctx, getFacilityByID, id)
+func (q *Queries) GetFacilityByID(ctx context.Context, id int32) (Facility, error) {
+	row := q.db.QueryRow(ctx, getFacilityByID, id)
 	var i Facility
 	err := row.Scan(
 		&i.ID,
@@ -83,8 +83,8 @@ FROM facilities
 ORDER BY priority ASC, name ASC
 `
 
-func (q *Queries) ListAllFacilities(ctx context.Context, db DBTX) ([]Facility, error) {
-	rows, err := db.Query(ctx, listAllFacilities)
+func (q *Queries) ListAllFacilities(ctx context.Context) ([]Facility, error) {
+	rows, err := q.db.Query(ctx, listAllFacilities)
 	if err != nil {
 		return nil, err
 	}
@@ -121,8 +121,8 @@ ORDER BY priority ASC, name ASC
 `
 
 // Facilities queries for public and admin operations
-func (q *Queries) ListFacilities(ctx context.Context, db DBTX) ([]Facility, error) {
-	rows, err := db.Query(ctx, listFacilities)
+func (q *Queries) ListFacilities(ctx context.Context) ([]Facility, error) {
+	rows, err := q.db.Query(ctx, listFacilities)
 	if err != nil {
 		return nil, err
 	}
@@ -171,8 +171,8 @@ type UpdateFacilityParams struct {
 	IsActive    bool    `json:"is_active"`
 }
 
-func (q *Queries) UpdateFacility(ctx context.Context, db DBTX, arg UpdateFacilityParams) (Facility, error) {
-	row := db.QueryRow(ctx, updateFacility,
+func (q *Queries) UpdateFacility(ctx context.Context, arg UpdateFacilityParams) (Facility, error) {
+	row := q.db.QueryRow(ctx, updateFacility,
 		arg.ID,
 		arg.Name,
 		arg.Description,
@@ -215,8 +215,8 @@ type UpdateFacilityPartialParams struct {
 	ID          int32   `json:"id"`
 }
 
-func (q *Queries) UpdateFacilityPartial(ctx context.Context, db DBTX, arg UpdateFacilityPartialParams) (Facility, error) {
-	row := db.QueryRow(ctx, updateFacilityPartial,
+func (q *Queries) UpdateFacilityPartial(ctx context.Context, arg UpdateFacilityPartialParams) (Facility, error) {
+	row := q.db.QueryRow(ctx, updateFacilityPartial,
 		arg.Name,
 		arg.Description,
 		arg.Location,

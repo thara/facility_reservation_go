@@ -6,6 +6,9 @@ package db
 
 import (
 	"time"
+
+	uuid "github.com/google/uuid"
+	"github.com/jackc/pgx/v5/pgtype"
 )
 
 type Facility struct {
@@ -20,11 +23,17 @@ type Facility struct {
 }
 
 type User struct {
-	ID           int32     `json:"id"`
-	Username     string    `json:"username"`
-	Email        *string   `json:"email"`
-	IsStaff      bool      `json:"is_staff"`
-	PasswordHash string    `json:"password_hash"`
-	CreatedAt    time.Time `json:"created_at"`
-	UpdatedAt    time.Time `json:"updated_at"`
+	ID        uuid.UUID `json:"id"`
+	Username  string    `json:"username"`
+	IsStaff   bool      `json:"is_staff"`
+	CreatedAt time.Time `json:"created_at"`
+}
+
+type UserToken struct {
+	ID        uuid.UUID          `json:"id"`
+	UserID    uuid.UUID          `json:"user_id"`
+	Token     string             `json:"token"`
+	Name      string             `json:"name"`
+	ExpiresAt pgtype.Timestamptz `json:"expires_at"`
+	CreatedAt time.Time          `json:"created_at"`
 }

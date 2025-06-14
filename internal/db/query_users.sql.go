@@ -7,48 +7,77 @@ package db
 
 import (
 	"context"
-	"time"
+
+	uuid "github.com/google/uuid"
+	"github.com/jackc/pgx/v5/pgtype"
 )
 
+const createToken = `-- name: CreateToken :one
+INSERT INTO user_tokens (id, user_id, token, name, expires_at)
+VALUES ($1, $2, $3, $4, $5)
+RETURNING id, user_id, token, name, expires_at, created_at
+`
+
+type CreateTokenParams struct {
+	ID        uuid.UUID          `json:"id"`
+	UserID    uuid.UUID          `json:"user_id"`
+	Token     string             `json:"token"`
+	Name      string             `json:"name"`
+	ExpiresAt pgtype.Timestamptz `json:"expires_at"`
+}
+
+func (q *Queries) CreateToken(ctx context.Context, arg CreateTokenParams) (UserToken, error) {
+	row := q.db.QueryRow(ctx, createToken,
+		arg.ID,
+		arg.UserID,
+		arg.Token,
+		arg.Name,
+		arg.ExpiresAt,
+	)
+	var i UserToken
+	err := row.Scan(
+		&i.ID,
+		&i.UserID,
+		&i.Token,
+		&i.Name,
+		&i.ExpiresAt,
+		&i.CreatedAt,
+	)
+	return i, err
+}
+
 const createUser = `-- name: CreateUser :one
-INSERT INTO users (username, email, is_staff, password_hash)
-VALUES ($1, $2, $3, $4)
-RETURNING id, username, email, is_staff, created_at, updated_at
+INSERT INTO users (id, username, is_staff)
+VALUES ($1, $2, $3)
+RETURNING id, username, is_staff, created_at
 `
 
 type CreateUserParams struct {
-	Username     string  `json:"username"`
-	Email        *string `json:"email"`
-	IsStaff      bool    `json:"is_staff"`
-	PasswordHash string  `json:"password_hash"`
+	ID       uuid.UUID `json:"id"`
+	Username string    `json:"username"`
+	IsStaff  bool      `json:"is_staff"`
 }
 
-type CreateUserRow struct {
-	ID        int32     `json:"id"`
-	Username  string    `json:"username"`
-	Email     *string   `json:"email"`
-	IsStaff   bool      `json:"is_staff"`
-	CreatedAt time.Time `json:"created_at"`
-	UpdatedAt time.Time `json:"updated_at"`
-}
-
-func (q *Queries) CreateUser(ctx context.Context, db DBTX, arg CreateUserParams) (CreateUserRow, error) {
-	row := db.QueryRow(ctx, createUser,
-		arg.Username,
-		arg.Email,
-		arg.IsStaff,
-		arg.PasswordHash,
-	)
-	var i CreateUserRow
+func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (User, error) {
+	row := q.db.QueryRow(ctx, createUser, arg.ID, arg.Username, arg.IsStaff)
+	var i User
 	err := row.Scan(
 		&i.ID,
 		&i.Username,
-		&i.Email,
 		&i.IsStaff,
 		&i.CreatedAt,
-		&i.UpdatedAt,
 	)
 	return i, err
+}
+
+const deleteToken = `-- name: DeleteToken :exec
+DELETE FROM user_tokens
+WHERE id = $1
+`
+
+func (q *Queries) DeleteToken(ctx context.Context, id uuid.UUID) error {
+	_, err := q.db.Exec(ctx, deleteToken, id)
+	return err
 }
 
 const deleteUser = `-- name: DeleteUser :exec
@@ -56,113 +85,93 @@ DELETE FROM users
 WHERE id = $1
 `
 
-func (q *Queries) DeleteUser(ctx context.Context, db DBTX, id int32) error {
-	_, err := db.Exec(ctx, deleteUser, id)
+func (q *Queries) DeleteUser(ctx context.Context, id uuid.UUID) error {
+	_, err := q.db.Exec(ctx, deleteUser, id)
 	return err
 }
 
-const getCurrentUser = `-- name: GetCurrentUser :one
-SELECT id, username, email
-FROM users
-WHERE id = $1
-`
-
-type GetCurrentUserRow struct {
-	ID       int32   `json:"id"`
-	Username string  `json:"username"`
-	Email    *string `json:"email"`
-}
-
-func (q *Queries) GetCurrentUser(ctx context.Context, db DBTX, id int32) (GetCurrentUserRow, error) {
-	row := db.QueryRow(ctx, getCurrentUser, id)
-	var i GetCurrentUserRow
-	err := row.Scan(&i.ID, &i.Username, &i.Email)
-	return i, err
-}
-
 const getUserByID = `-- name: GetUserByID :one
-
-SELECT id, username, email, is_staff, created_at, updated_at
+SELECT id, username, is_staff, created_at
 FROM users 
 WHERE id = $1
 `
 
-type GetUserByIDRow struct {
-	ID        int32     `json:"id"`
-	Username  string    `json:"username"`
-	Email     *string   `json:"email"`
-	IsStaff   bool      `json:"is_staff"`
-	CreatedAt time.Time `json:"created_at"`
-	UpdatedAt time.Time `json:"updated_at"`
-}
-
-// Users queries for admin and authentication operations
-func (q *Queries) GetUserByID(ctx context.Context, db DBTX, id int32) (GetUserByIDRow, error) {
-	row := db.QueryRow(ctx, getUserByID, id)
-	var i GetUserByIDRow
-	err := row.Scan(
-		&i.ID,
-		&i.Username,
-		&i.Email,
-		&i.IsStaff,
-		&i.CreatedAt,
-		&i.UpdatedAt,
-	)
-	return i, err
-}
-
-const getUserByUsername = `-- name: GetUserByUsername :one
-SELECT id, username, email, is_staff, password_hash, created_at, updated_at
-FROM users 
-WHERE username = $1
-`
-
-func (q *Queries) GetUserByUsername(ctx context.Context, db DBTX, username string) (User, error) {
-	row := db.QueryRow(ctx, getUserByUsername, username)
+func (q *Queries) GetUserByID(ctx context.Context, id uuid.UUID) (User, error) {
+	row := q.db.QueryRow(ctx, getUserByID, id)
 	var i User
 	err := row.Scan(
 		&i.ID,
 		&i.Username,
-		&i.Email,
 		&i.IsStaff,
-		&i.PasswordHash,
 		&i.CreatedAt,
-		&i.UpdatedAt,
 	)
 	return i, err
 }
 
-const listUsers = `-- name: ListUsers :many
-SELECT id, username, email, is_staff, created_at, updated_at
-FROM users
-ORDER BY id
+const getUserByToken = `-- name: GetUserByToken :one
+
+SELECT u.id, u.username, u.is_staff
+FROM users u
+JOIN user_tokens t ON u.id = t.user_id
+WHERE t.token = $1 
+  AND (t.expires_at IS NULL OR t.expires_at > NOW())
 `
 
-type ListUsersRow struct {
-	ID        int32     `json:"id"`
-	Username  string    `json:"username"`
-	Email     *string   `json:"email"`
-	IsStaff   bool      `json:"is_staff"`
-	CreatedAt time.Time `json:"created_at"`
-	UpdatedAt time.Time `json:"updated_at"`
+type GetUserByTokenRow struct {
+	ID       uuid.UUID `json:"id"`
+	Username string    `json:"username"`
+	IsStaff  bool      `json:"is_staff"`
 }
 
-func (q *Queries) ListUsers(ctx context.Context, db DBTX) ([]ListUsersRow, error) {
-	rows, err := db.Query(ctx, listUsers)
+// Users queries for Phase 1 token-based authentication
+func (q *Queries) GetUserByToken(ctx context.Context, token string) (GetUserByTokenRow, error) {
+	row := q.db.QueryRow(ctx, getUserByToken, token)
+	var i GetUserByTokenRow
+	err := row.Scan(&i.ID, &i.Username, &i.IsStaff)
+	return i, err
+}
+
+const getUserByUsername = `-- name: GetUserByUsername :one
+SELECT id, username, is_staff, created_at
+FROM users 
+WHERE username = $1
+`
+
+func (q *Queries) GetUserByUsername(ctx context.Context, username string) (User, error) {
+	row := q.db.QueryRow(ctx, getUserByUsername, username)
+	var i User
+	err := row.Scan(
+		&i.ID,
+		&i.Username,
+		&i.IsStaff,
+		&i.CreatedAt,
+	)
+	return i, err
+}
+
+const listUserTokens = `-- name: ListUserTokens :many
+SELECT id, user_id, token, name, expires_at, created_at
+FROM user_tokens
+WHERE user_id = $1
+ORDER BY created_at DESC
+`
+
+func (q *Queries) ListUserTokens(ctx context.Context, userID uuid.UUID) ([]UserToken, error) {
+	rows, err := q.db.Query(ctx, listUserTokens, userID)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	var items []ListUsersRow
+	var items []UserToken
 	for rows.Next() {
-		var i ListUsersRow
+		var i UserToken
 		if err := rows.Scan(
 			&i.ID,
-			&i.Username,
-			&i.Email,
-			&i.IsStaff,
+			&i.UserID,
+			&i.Token,
+			&i.Name,
+			&i.ExpiresAt,
 			&i.CreatedAt,
-			&i.UpdatedAt,
 		); err != nil {
 			return nil, err
 		}
@@ -174,64 +183,33 @@ func (q *Queries) ListUsers(ctx context.Context, db DBTX) ([]ListUsersRow, error
 	return items, nil
 }
 
-const updateUser = `-- name: UpdateUser :one
-UPDATE users
-SET username = $2,
-    email = $3,
-    is_staff = $4,
-    updated_at = NOW()
-WHERE id = $1
-RETURNING id, username, email, is_staff, created_at, updated_at
+const listUsers = `-- name: ListUsers :many
+SELECT id, username, is_staff, created_at
+FROM users
+ORDER BY created_at
 `
 
-type UpdateUserParams struct {
-	ID       int32   `json:"id"`
-	Username string  `json:"username"`
-	Email    *string `json:"email"`
-	IsStaff  bool    `json:"is_staff"`
-}
-
-type UpdateUserRow struct {
-	ID        int32     `json:"id"`
-	Username  string    `json:"username"`
-	Email     *string   `json:"email"`
-	IsStaff   bool      `json:"is_staff"`
-	CreatedAt time.Time `json:"created_at"`
-	UpdatedAt time.Time `json:"updated_at"`
-}
-
-func (q *Queries) UpdateUser(ctx context.Context, db DBTX, arg UpdateUserParams) (UpdateUserRow, error) {
-	row := db.QueryRow(ctx, updateUser,
-		arg.ID,
-		arg.Username,
-		arg.Email,
-		arg.IsStaff,
-	)
-	var i UpdateUserRow
-	err := row.Scan(
-		&i.ID,
-		&i.Username,
-		&i.Email,
-		&i.IsStaff,
-		&i.CreatedAt,
-		&i.UpdatedAt,
-	)
-	return i, err
-}
-
-const updateUserPassword = `-- name: UpdateUserPassword :exec
-UPDATE users
-SET password_hash = $2,
-    updated_at = NOW()
-WHERE id = $1
-`
-
-type UpdateUserPasswordParams struct {
-	ID           int32  `json:"id"`
-	PasswordHash string `json:"password_hash"`
-}
-
-func (q *Queries) UpdateUserPassword(ctx context.Context, db DBTX, arg UpdateUserPasswordParams) error {
-	_, err := db.Exec(ctx, updateUserPassword, arg.ID, arg.PasswordHash)
-	return err
+func (q *Queries) ListUsers(ctx context.Context) ([]User, error) {
+	rows, err := q.db.Query(ctx, listUsers)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []User
+	for rows.Next() {
+		var i User
+		if err := rows.Scan(
+			&i.ID,
+			&i.Username,
+			&i.IsStaff,
+			&i.CreatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
 }
