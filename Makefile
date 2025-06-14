@@ -15,6 +15,30 @@ lint:
 	golangci-lint config verify
 	golangci-lint run -v
 
+.PHONY: sqlc-generate
+sqlc-generate:
+	sqlc generate
+
+.PHONY: atlas-status
+atlas-status:
+	atlas schema inspect --env dev
+
+.PHONY: atlas-apply
+atlas-apply:
+	atlas schema apply --env dev
+
+.PHONY: atlas-diff
+atlas-diff:
+	atlas schema diff --env dev
+
+.PHONY: db-setup
+db-setup: atlas-apply sqlc-generate
+
+.PHONY: dev-deps
+dev-deps:
+	go install ariga.io/atlas/cmd/atlas@latest
+	go install github.com/sqlc-dev/sqlc/cmd/sqlc@latest
+
 actionlint:
 	actionlint
 	ghalint run
