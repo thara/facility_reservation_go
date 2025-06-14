@@ -4,6 +4,12 @@ Welcome to the documentation for the Facility Reservation System - a REST API se
 
 ## 📋 Documentation Index
 
+### 📋 Product
+- **[Product Requirements Document (PRD)](prd.md)** - Complete product vision, user needs, and implementation roadmap
+  - User personas, workflows, and success metrics
+  - Functional requirements organized by implementation phases
+  - Competitive analysis and market positioning
+
 ### 🏗️ Architecture
 - **[Architecture Overview](architecture.md)** - Complete system architecture using arc42 template
   - System context, building blocks, runtime views
@@ -24,15 +30,21 @@ Welcome to the documentation for the Facility Reservation System - a REST API se
 
 ## 🚀 Quick Start
 
+### For Product Managers & Stakeholders
+1. **Start here**: [Product Requirements Document (PRD)](prd.md) - Complete product vision and roadmap
+2. **Current status**: Phase 0 (foundation) complete, Phase 1 (core booking) in planning
+3. **Success metrics**: User adoption, booking efficiency, and system reliability targets
+
 ### For New Developers
-1. **Start here**: [Architecture Overview](architecture.md) - Understand the system design
-2. **Learn the decisions**: Browse [ADRs](adr/) to understand why key choices were made
-3. **Get productive**: Follow [Development Workflow](design-docs/003-development-workflow.md) for daily development
+1. **Product context**: [PRD](prd.md) - Understand what we're building and why
+2. **System design**: [Architecture Overview](architecture.md) - Technical system architecture
+3. **Daily workflow**: [Development Workflow](design-docs/003-development-workflow.md) for productive development
 
 ### For Architects
-1. **System overview**: [Architecture Overview](architecture.md) - Complete arc42 documentation
-2. **Decision context**: [ADR Index](adr/) - Rationale behind architectural choices
-3. **Complex systems**: [Design Docs](design-docs/) - Implementation details for sophisticated workflows
+1. **Product strategy**: [PRD](prd.md) - Business requirements and success criteria
+2. **System overview**: [Architecture Overview](architecture.md) - Complete arc42 documentation
+3. **Decision context**: [ADR Index](adr/) - Rationale behind architectural choices
+4. **Complex systems**: [Design Docs](design-docs/) - Implementation details for sophisticated workflows
 
 ### For API Consumers
 1. **API specification**: `spec/main.tsp` - TypeSpec definition of all endpoints
