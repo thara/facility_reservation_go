@@ -4,19 +4,22 @@
 -- Enable UUID extension for PostgreSQL
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
--- Users table for authentication and user management
+-- Users table for authentication and user management (Phase 1: Token-based only)
 CREATE TABLE users (
-    id SERIAL PRIMARY KEY,
-    username VARCHAR(150) NOT NULL UNIQUE,
-    email VARCHAR(254),
+    id UUID PRIMARY KEY,
+    username VARCHAR(100) NOT NULL UNIQUE,
     is_staff BOOLEAN NOT NULL DEFAULT FALSE,
-    password_hash VARCHAR(255) NOT NULL,
-    created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
-    updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
-    
-    -- Constraints based on TypeSpec models
-    CONSTRAINT users_username_format CHECK (username ~ '^[\w.@+-]+$'),
-    CONSTRAINT users_email_format CHECK (email ~ '^[^@]+@[^@]+\.[^@]+$' OR email IS NULL)
+    created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW()
+);
+
+-- API tokens for authentication (Phase 1)
+CREATE TABLE user_tokens (
+    id UUID PRIMARY KEY,
+    user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    token VARCHAR(255) NOT NULL UNIQUE,
+    name VARCHAR(100) NOT NULL,
+    expires_at TIMESTAMP WITH TIME ZONE,
+    created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW()
 );
 
 -- Facilities table for managing bookable facilities
@@ -33,8 +36,9 @@ CREATE TABLE facilities (
 
 -- Create indexes for common queries
 CREATE INDEX idx_users_username ON users(username);
-CREATE INDEX idx_users_email ON users(email) WHERE email IS NOT NULL;
 CREATE INDEX idx_users_is_staff ON users(is_staff);
+CREATE INDEX idx_user_tokens_token ON user_tokens(token);
+CREATE INDEX idx_user_tokens_user_id ON user_tokens(user_id);
 
 CREATE INDEX idx_facilities_name ON facilities(name);
 CREATE INDEX idx_facilities_is_active ON facilities(is_active);

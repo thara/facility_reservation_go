@@ -20,6 +20,12 @@ This command performs the complete development build pipeline:
 
 **This is not optional** - all code changes must pass the full build pipeline before being considered complete.
 
+## Database Policy
+
+**DO NOT define any custom functions and procedures in RDB.**
+
+All business logic, UUID generation, and data processing must be handled in the application layer, not in the database.
+
 ## Essential Commands
 
 ### API Schema Generation
