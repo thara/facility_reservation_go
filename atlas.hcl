@@ -1,7 +1,7 @@
 // Atlas configuration for facility reservation API
 data "external_schema" "app" {
   program = [
-    "sh", "-c", "cat schema/schema.sql"
+    "sh", "-c", "cat _db/schema.sql"
   ]
 }
 
