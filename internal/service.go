@@ -1,4 +1,3 @@
-// Package internal provides the business logic implementation for the facility reservation API.
 package internal
 
 import "github.com/thara/facility_reservation_go/oas"

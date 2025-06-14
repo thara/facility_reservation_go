@@ -1,4 +1,3 @@
-// Package main provides the HTTP server entry point for the facility reservation API.
 package main
 
 import (
