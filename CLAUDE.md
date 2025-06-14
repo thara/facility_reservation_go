@@ -2,6 +2,24 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+## Code Quality Enforcement
+
+**MANDATORY**: After making ANY code edits, you MUST run:
+```bash
+make build-dev
+```
+
+This command performs the complete development build pipeline:
+- Clean build artifacts
+- Format code (`make fmt`)
+- Run linter checks (`make lint`) 
+- Regenerate SQL code (`make sqlc-generate`)
+- Regenerate API code (`make ogen`)
+- Run all tests (`make test_all`)
+- Build the binary
+
+**This is not optional** - all code changes must pass the full build pipeline before being considered complete.
+
 ## Essential Commands
 
 ### API Schema Generation
@@ -83,8 +101,8 @@ This is a facility reservation API built with a **database-first** approach usin
 ### Key Components
 
 - **`spec/main.tsp`**: TypeSpec API specification defining all endpoints, models, and operations
-- **`schema/schema.sql`**: Database schema (source of truth) used by both Atlas and sqlc
-- **`queries/*.sql`**: SQL queries for CRUD operations, compiled by sqlc to Go code
+- **`_db/schema.sql`**: Database schema (source of truth) used by both Atlas and sqlc
+- **`_db/query_*.sql`**: SQL queries for CRUD operations, compiled by sqlc to Go code
 - **`api/`**: Auto-generated Go server code (handlers, schemas, validators) - DO NOT EDIT manually
 - **`internal/db/`**: Auto-generated Go database code from sqlc - DO NOT EDIT manually
 - **`internal/service.go`**: Business logic implementation with database integration
@@ -106,9 +124,9 @@ The API provides three main endpoint groups:
 
 ### Development Workflow
 
-1. **Database Schema**: Modify `schema/schema.sql` (declarative schema)
+1. **Database Schema**: Modify `_db/schema.sql` (declarative schema)
 2. **Apply Schema**: Run `make atlas-apply` to update database
-3. **SQL Queries**: Add/modify queries in `queries/*.sql`
+3. **SQL Queries**: Add/modify queries in `_db/query_*.sql`
 4. **Generate Code**: Run `make sqlc-generate` to regenerate database code
 5. **API Changes**: Modify `spec/main.tsp` if needed
 6. **Server Code**: Run `make ogen` to regenerate HTTP handlers
@@ -172,7 +190,7 @@ Tests are organized using **external test packages** to enforce proper encapsula
 
 ### Important Notes
 
-- **Schema as Code**: `schema/schema.sql` is the single source of truth for database structure
+- **Schema as Code**: `_db/schema.sql` is the single source of truth for database structure
 - **Type Safety**: sqlc generates type-safe Go structs and functions from SQL queries
 - **Auto-generated Code**: Never edit files in `api/` or `internal/db/` directories
 - **Atlas Migration**: Atlas automatically calculates and applies schema changes
