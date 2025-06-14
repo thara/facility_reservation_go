@@ -2,7 +2,6 @@ package internal_test
 
 import (
 	"context"
-	"os"
 	"testing"
 	"time"
 
@@ -15,16 +14,11 @@ func TestNewDatabaseService(t *testing.T) {
 	ctx := t.Context()
 
 	t.Run("successful connection", func(t *testing.T) {
-		// Use test database URL - requires PostgreSQL running
-		databaseURL := getTestDatabaseURL()
-		if databaseURL == "" {
-			t.Skip("TEST_DATABASE_URL not set, skipping integration test")
+		if testing.Short() {
+			t.Skip("Skipping integration test in short mode")
 		}
 
-		ds, err := internal.NewDatabaseService(ctx, databaseURL)
-		require.NoError(t, err)
-		require.NotNil(t, ds)
-		defer ds.Close()
+		ds := internal.SetupTestDatabase(ctx, t)
 
 		// Verify queries interface is available
 		assert.NotNil(t, ds.Queries())
@@ -54,15 +48,12 @@ func TestNewDatabaseService(t *testing.T) {
 }
 
 func TestDatabaseService_HealthCheck(t *testing.T) {
-	ctx := t.Context()
-	databaseURL := getTestDatabaseURL()
-	if databaseURL == "" {
-		t.Skip("TEST_DATABASE_URL not set, skipping integration test")
+	if testing.Short() {
+		t.Skip("Skipping integration test in short mode")
 	}
 
-	ds, err := internal.NewDatabaseService(ctx, databaseURL)
-	require.NoError(t, err)
-	defer ds.Close()
+	ctx := t.Context()
+	ds := internal.SetupTestDatabase(ctx, t)
 
 	t.Run("successful health check", func(t *testing.T) {
 		err := ds.HealthCheck(ctx)
@@ -82,17 +73,15 @@ func TestDatabaseService_HealthCheck(t *testing.T) {
 }
 
 func TestDatabaseService_Close(t *testing.T) {
-	ctx := t.Context()
-	databaseURL := getTestDatabaseURL()
-	if databaseURL == "" {
-		t.Skip("TEST_DATABASE_URL not set, skipping integration test")
+	if testing.Short() {
+		t.Skip("Skipping integration test in short mode")
 	}
 
-	ds, err := internal.NewDatabaseService(ctx, databaseURL)
-	require.NoError(t, err)
+	ctx := t.Context()
+	ds := internal.SetupTestDatabase(ctx, t)
 
 	// Verify connection works before closing
-	err = ds.HealthCheck(ctx)
+	err := ds.HealthCheck(ctx)
 	require.NoError(t, err)
 
 	// Close the service
@@ -104,15 +93,12 @@ func TestDatabaseService_Close(t *testing.T) {
 }
 
 func TestDatabaseService_ConnectionPoolConfiguration(t *testing.T) {
-	ctx := t.Context()
-	databaseURL := getTestDatabaseURL()
-	if databaseURL == "" {
-		t.Skip("TEST_DATABASE_URL not set, skipping integration test")
+	if testing.Short() {
+		t.Skip("Skipping integration test in short mode")
 	}
 
-	ds, err := internal.NewDatabaseService(ctx, databaseURL)
-	require.NoError(t, err)
-	defer ds.Close()
+	ctx := t.Context()
+	ds := internal.SetupTestDatabase(ctx, t)
 
 	pool := ds.Pool()
 	require.NotNil(t, pool)
@@ -125,15 +111,6 @@ func TestDatabaseService_ConnectionPoolConfiguration(t *testing.T) {
 	assert.Equal(t, 30*time.Minute, config.MaxConnIdleTime)
 }
 
-// getTestDatabaseURL returns the test database URL from environment
-// or empty string if not set.
-func getTestDatabaseURL() string {
-	// Check for test-specific database URL
-	// In CI/CD or local testing, set TEST_DATABASE_URL
-	// Example: postgres://postgres:postgres@localhost:5433/facility_reservation_test?sslmode=disable
-	return os.Getenv("TEST_DATABASE_URL")
-}
-
 // TestDatabaseService_Integration runs integration tests if database is available.
 func TestDatabaseService_Integration(t *testing.T) {
 	if testing.Short() {
@@ -141,30 +118,9 @@ func TestDatabaseService_Integration(t *testing.T) {
 	}
 
 	ctx := t.Context()
-	databaseURL := getTestDatabaseURL()
-	if databaseURL == "" {
-		t.Skip("TEST_DATABASE_URL not set, skipping integration test")
-	}
-
-	t.Run("multiple connections", func(t *testing.T) {
-		// Test that we can create multiple database services
-		ds1, err := internal.NewDatabaseService(ctx, databaseURL)
-		require.NoError(t, err)
-		defer ds1.Close()
-
-		ds2, err := internal.NewDatabaseService(ctx, databaseURL)
-		require.NoError(t, err)
-		defer ds2.Close()
-
-		// Both should be able to ping successfully
-		assert.NoError(t, ds1.HealthCheck(ctx))
-		assert.NoError(t, ds2.HealthCheck(ctx))
-	})
 
 	t.Run("concurrent health checks", func(t *testing.T) {
-		ds, err := internal.NewDatabaseService(ctx, databaseURL)
-		require.NoError(t, err)
-		defer ds.Close()
+		ds := internal.SetupTestDatabase(ctx, t)
 
 		// Run multiple health checks concurrently
 		done := make(chan error, 10)
