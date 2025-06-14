@@ -20,11 +20,23 @@ const (
 	shutdownTimeout   = 30 * time.Second
 )
 
-var addr string
+var (
+	addr        string
+	databaseURL string
+)
 
 func init() {
 	flag.StringVar(&addr, "addr", ":8080", "HTTP server address")
+	flag.StringVar(&databaseURL, "database-url", "", "Database connection URL")
 	flag.Parse()
+
+	// Set default database URL if not provided
+	if databaseURL == "" {
+		databaseURL = os.Getenv("DATABASE_URL")
+		if databaseURL == "" {
+			databaseURL = "postgres://postgres:postgres@localhost:5432/facility_reservation_dev?sslmode=disable"
+		}
+	}
 
 	var handler slog.Handler
 	env := os.Getenv("ENV")
@@ -48,7 +60,17 @@ func main() {
 }
 
 func run(ctx context.Context) error {
-	svc := &internal.Service{} //nolint:exhaustruct // Unimplemented
+	// Initialize database
+	db, err := internal.NewDatabaseService(ctx, databaseURL)
+	if err != nil {
+		return fmt.Errorf("failed to initialize database: %w", err)
+	}
+	defer db.Close()
+
+	slog.InfoContext(ctx, "database connection established", "url", databaseURL)
+
+	// Create service with database dependency
+	svc := internal.NewService(db)
 
 	handler, err := oas.NewServer(svc)
 	if err != nil {
