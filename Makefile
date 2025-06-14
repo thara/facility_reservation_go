@@ -12,6 +12,7 @@ fmt:
 
 .PHONY: lint
 lint:
+	golangci-lint config verify
 	golangci-lint run -v
 
 actionlint:
