@@ -40,22 +40,3 @@ CREATE INDEX idx_facilities_name ON facilities(name);
 CREATE INDEX idx_facilities_is_active ON facilities(is_active);
 CREATE INDEX idx_facilities_priority ON facilities(priority);
 
--- Create function to automatically update updated_at timestamps
-CREATE OR REPLACE FUNCTION update_updated_at_column()
-RETURNS TRIGGER AS $$
-BEGIN
-    NEW.updated_at = NOW();
-    RETURN NEW;
-END;
-$$ language 'plpgsql';
-
--- Create triggers to automatically update updated_at
-CREATE TRIGGER update_users_updated_at 
-    BEFORE UPDATE ON users 
-    FOR EACH ROW 
-    EXECUTE FUNCTION update_updated_at_column();
-
-CREATE TRIGGER update_facilities_updated_at 
-    BEFORE UPDATE ON facilities 
-    FOR EACH ROW 
-    EXECUTE FUNCTION update_updated_at_column();

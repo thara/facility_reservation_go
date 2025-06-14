@@ -27,7 +27,8 @@ SET name = $2,
     description = $3,
     location = $4,
     priority = $5,
-    is_active = $6
+    is_active = $6,
+    updated_at = NOW()
 WHERE id = $1
 RETURNING id, name, description, location, priority, is_active, created_at, updated_at;
 
@@ -37,7 +38,8 @@ SET name = COALESCE(sqlc.narg('name'), name),
     description = COALESCE(sqlc.narg('description'), description),
     location = COALESCE(sqlc.narg('location'), location),
     priority = COALESCE(sqlc.narg('priority'), priority),
-    is_active = COALESCE(sqlc.narg('is_active'), is_active)
+    is_active = COALESCE(sqlc.narg('is_active'), is_active),
+    updated_at = NOW()
 WHERE id = sqlc.arg('id')
 RETURNING id, name, description, location, priority, is_active, created_at, updated_at;
 

@@ -178,7 +178,8 @@ const updateUser = `-- name: UpdateUser :one
 UPDATE users
 SET username = $2,
     email = $3,
-    is_staff = $4
+    is_staff = $4,
+    updated_at = NOW()
 WHERE id = $1
 RETURNING id, username, email, is_staff, created_at, updated_at
 `
@@ -220,7 +221,8 @@ func (q *Queries) UpdateUser(ctx context.Context, db DBTX, arg UpdateUserParams)
 
 const updateUserPassword = `-- name: UpdateUserPassword :exec
 UPDATE users
-SET password_hash = $2
+SET password_hash = $2,
+    updated_at = NOW()
 WHERE id = $1
 `
 

@@ -156,7 +156,8 @@ SET name = $2,
     description = $3,
     location = $4,
     priority = $5,
-    is_active = $6
+    is_active = $6,
+    updated_at = NOW()
 WHERE id = $1
 RETURNING id, name, description, location, priority, is_active, created_at, updated_at
 `
@@ -199,7 +200,8 @@ SET name = COALESCE($1, name),
     description = COALESCE($2, description),
     location = COALESCE($3, location),
     priority = COALESCE($4, priority),
-    is_active = COALESCE($5, is_active)
+    is_active = COALESCE($5, is_active),
+    updated_at = NOW()
 WHERE id = $6
 RETURNING id, name, description, location, priority, is_active, created_at, updated_at
 `
