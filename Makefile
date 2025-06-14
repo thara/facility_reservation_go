@@ -1,3 +1,7 @@
+.PHONY: clean
+clean:
+	rm -rf ./bin
+
 .PHONY: tsp
 tsp:
 	cd ./spec ; tsp compile .
@@ -76,11 +80,19 @@ test-short:
 test-integration: db-test-up atlas-apply-test
 	TEST_DATABASE_URL="postgres://postgres:postgres@localhost:5433/facility_reservation_test?sslmode=disable" go test ./... -v
 
+.PHONY: test-all
+test_all: test-short test-integration
+
+.PHONY: build_dev
+build_dev: clean fmt lint sqlc-generate ogen test_all
+	go build -o ./bin/api-server ./cmd/api-server/
+
 .PHONY: dev-deps
 dev-deps:
 	go install ariga.io/atlas/cmd/atlas@latest
 	go install github.com/sqlc-dev/sqlc/cmd/sqlc@latest
 
+.PHONY: actionlint
 actionlint:
 	actionlint
 	ghalint run
