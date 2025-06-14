@@ -8,7 +8,6 @@ import (
 	"time"
 
 	uuid "github.com/google/uuid"
-	"github.com/jackc/pgx/v5/pgtype"
 )
 
 type Facility struct {
@@ -30,10 +29,10 @@ type User struct {
 }
 
 type UserToken struct {
-	ID        uuid.UUID          `json:"id"`
-	UserID    uuid.UUID          `json:"user_id"`
-	Token     string             `json:"token"`
-	Name      string             `json:"name"`
-	ExpiresAt pgtype.Timestamptz `json:"expires_at"`
-	CreatedAt time.Time          `json:"created_at"`
+	ID        uuid.UUID  `json:"id"`
+	UserID    uuid.UUID  `json:"user_id"`
+	Token     string     `json:"token"`
+	Name      string     `json:"name"`
+	ExpiresAt *time.Time `json:"expires_at"`
+	CreatedAt time.Time  `json:"created_at"`
 }

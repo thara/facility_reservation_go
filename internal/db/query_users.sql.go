@@ -7,9 +7,9 @@ package db
 
 import (
 	"context"
+	"time"
 
 	uuid "github.com/google/uuid"
-	"github.com/jackc/pgx/v5/pgtype"
 )
 
 const createToken = `-- name: CreateToken :one
@@ -19,11 +19,11 @@ RETURNING id, user_id, token, name, expires_at, created_at
 `
 
 type CreateTokenParams struct {
-	ID        uuid.UUID          `json:"id"`
-	UserID    uuid.UUID          `json:"user_id"`
-	Token     string             `json:"token"`
-	Name      string             `json:"name"`
-	ExpiresAt pgtype.Timestamptz `json:"expires_at"`
+	ID        uuid.UUID  `json:"id"`
+	UserID    uuid.UUID  `json:"user_id"`
+	Token     string     `json:"token"`
+	Name      string     `json:"name"`
+	ExpiresAt *time.Time `json:"expires_at"`
 }
 
 func (q *Queries) CreateToken(ctx context.Context, arg CreateTokenParams) (UserToken, error) {
