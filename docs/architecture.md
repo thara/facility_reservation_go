@@ -335,22 +335,19 @@ graph TB
         Users[users table]
         Facilities[facilities table]
         Indexes[Database Indexes]
-        Triggers[Update Triggers]
     end
     
     Pool --> Users
     Pool --> Facilities
     Users -.-> Indexes
     Facilities -.-> Indexes
-    Users -.-> Triggers
-    Facilities -.-> Triggers
 ```
 
 **Database Configuration:**
 - **Connection Pool**: 5-25 connections, 30min idle timeout
 - **Schema Management**: Atlas migrations
 - **Indexing**: Optimized for common queries
-- **Triggers**: Automatic timestamp updates
+- **Timestamp Updates**: Explicit `updated_at = NOW()` in application code
 
 ---
 
@@ -425,6 +422,35 @@ graph TB
 - **Public Endpoints**: Facility listing
 - **User Endpoints**: Profile access (authentication required)
 - **Admin Endpoints**: User and facility management
+
+### 8.5 Database Policies
+
+**Explicit Behavior Policy:**
+
+This system enforces **explicit behavior over implicit database operations** to maintain code clarity and debuggability.
+
+| Policy | Rationale | Implementation |
+|--------|-----------|----------------|
+| **No Database Triggers** | Triggers create hidden side effects that are hard to debug and test | All business logic must be explicit in application code |
+| **Explicit Timestamp Updates** | Automatic timestamp updates hide when data changes | All UPDATE queries explicitly set `updated_at = NOW()` |
+| **Application-Controlled Logic** | Business rules should be visible in application code | Database constraints for data integrity only, not business logic |
+
+**Benefits:**
+- **Debuggability**: All data changes are traceable in application logs
+- **Testability**: Timestamp updates can be controlled in tests
+- **Code Clarity**: No hidden database behavior affects application state
+- **Maintainability**: All business logic is visible in the codebase
+
+**Example:**
+```sql
+-- ❌ Avoid: Hidden trigger behavior
+CREATE TRIGGER update_timestamp BEFORE UPDATE...
+
+-- ✅ Prefer: Explicit application control
+UPDATE users 
+SET username = $1, updated_at = NOW() 
+WHERE id = $2
+```
 
 ---
 
