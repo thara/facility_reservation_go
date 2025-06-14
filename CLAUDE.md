@@ -13,27 +13,62 @@ make ogen
 make tsp
 ```
 
-The `make ogen` command is the primary build command that:
-1. Compiles TypeSpec definitions from `spec/main.tsp`
-2. Generates OpenAPI 3.0/3.1 schemas in `spec/tsp-output/schema/`
-3. Uses ogen to generate Go server code in `oas/` directory
+### Database Operations
+```bash
+# Setup database schema and generate Go code
+make db-setup
+
+# Apply schema changes to database
+make atlas-apply
+
+# Generate Go code from SQL queries
+make sqlc-generate
+
+# Check current database schema status
+make atlas-status
+
+# Preview schema changes
+make atlas-diff
+```
+
+### Development Tools Installation
+```bash
+# Install development dependencies (Atlas, sqlc)
+make dev-deps
+```
 
 ### Running the Server
 ```bash
-# Run the API server on port 8080
+# Run with default database (requires PostgreSQL)
 go run cmd/api-server/main.go
+
+# Run with custom database URL
+go run cmd/api-server/main.go -database-url="postgres://user:pass@host:port/dbname"
+
+# Run on custom port
+go run cmd/api-server/main.go -addr=":3000"
 ```
 
 ## Architecture Overview
 
-This is a facility reservation API built with a **spec-first** approach using TypeSpec for API definition and ogen for Go code generation.
+This is a facility reservation API built with a **database-first** approach using Atlas for schema management, sqlc for type-safe database access, and ogen for HTTP server generation.
 
 ### Key Components
 
 - **`spec/main.tsp`**: TypeSpec API specification defining all endpoints, models, and operations
+- **`schema/schema.sql`**: Database schema (source of truth) used by both Atlas and sqlc
+- **`queries/*.sql`**: SQL queries for CRUD operations, compiled by sqlc to Go code
 - **`oas/`**: Auto-generated Go server code (handlers, schemas, validators) - DO NOT EDIT manually
-- **`internal/service.go`**: Business logic implementation that embeds `oas.UnimplementedHandler`
-- **`cmd/api-server/main.go`**: HTTP server entry point
+- **`internal/db/`**: Auto-generated Go database code from sqlc - DO NOT EDIT manually
+- **`internal/service.go`**: Business logic implementation with database integration
+- **`internal/database.go`**: Database service with connection pooling
+- **`cmd/api-server/main.go`**: HTTP server entry point with database initialization
+
+### Database Tools
+
+- **Atlas**: Database schema-as-code tool for migrations and schema management
+- **sqlc**: Generates type-safe Go code from SQL queries
+- **PostgreSQL**: Primary database with pgx driver for connection pooling
 
 ### API Structure
 
@@ -44,14 +79,27 @@ The API provides three main endpoint groups:
 
 ### Development Workflow
 
-1. **Schema Changes**: Modify `spec/main.tsp` (TypeSpec definitions)
-2. **Code Generation**: Run `make ogen` to regenerate Go server code
-3. **Business Logic**: Implement handlers in `internal/service.go`
-4. **Testing**: Start server with `go run cmd/api-server/main.go`
+1. **Database Schema**: Modify `schema/schema.sql` (declarative schema)
+2. **Apply Schema**: Run `make atlas-apply` to update database
+3. **SQL Queries**: Add/modify queries in `queries/*.sql`
+4. **Generate Code**: Run `make sqlc-generate` to regenerate database code
+5. **API Changes**: Modify `spec/main.tsp` if needed
+6. **Server Code**: Run `make ogen` to regenerate HTTP handlers
+7. **Business Logic**: Implement handlers in `internal/service.go` using generated database code
+8. **Testing**: Start server with `go run cmd/api-server/main.go`
+
+### Database Connection
+
+The application requires PostgreSQL and uses these connection methods:
+- **Default**: `postgres://postgres:postgres@localhost:5432/facility_reservation_dev?sslmode=disable`
+- **Environment**: Set `DATABASE_URL` environment variable
+- **CLI Flag**: Use `-database-url` command line argument
 
 ### Important Notes
 
-- All `oas/` files are generated - implement business logic only in `internal/` package
-- The Service struct embeds `oas.UnimplementedHandler` to satisfy the interface
-- TypeSpec compilation requires Node.js dependencies in `spec/` directory
-- OpenAPI schemas are generated in both 3.0.0 and 3.1.0 formats
+- **Schema as Code**: `schema/schema.sql` is the single source of truth for database structure
+- **Type Safety**: sqlc generates type-safe Go structs and functions from SQL queries
+- **Auto-generated Code**: Never edit files in `oas/` or `internal/db/` directories
+- **Atlas Migration**: Atlas automatically calculates and applies schema changes
+- **Connection Pooling**: Uses pgx connection pool with configurable limits
+- **Graceful Shutdown**: Database connections are properly closed on server shutdown
