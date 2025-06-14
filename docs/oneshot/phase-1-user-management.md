@@ -64,7 +64,7 @@ func AuthMiddleware(next http.Handler) http.Handler {
 func GenerateToken() string {
     bytes := make([]byte, 32)
     rand.Read(bytes)
-    return "ft_" + hex.EncodeToString(bytes)
+    return hex.EncodeToString(bytes)
 }
 ```
 

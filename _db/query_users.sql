@@ -23,8 +23,8 @@ FROM users
 ORDER BY created_at;
 
 -- name: CreateUser :one
-INSERT INTO users (username, is_staff)
-VALUES ($1, $2)
+INSERT INTO users (id, username, is_staff)
+VALUES ($1, $2, $3)
 RETURNING id, username, is_staff, created_at;
 
 -- name: DeleteUser :exec
@@ -32,8 +32,8 @@ DELETE FROM users
 WHERE id = $1;
 
 -- name: CreateToken :one
-INSERT INTO user_tokens (user_id, token, name, expires_at)
-VALUES ($1, $2, $3, $4)
+INSERT INTO user_tokens (id, user_id, token, name, expires_at)
+VALUES ($1, $2, $3, $4, $5)
 RETURNING id, user_id, token, name, expires_at, created_at;
 
 -- name: ListUserTokens :many
