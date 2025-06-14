@@ -2,7 +2,7 @@
 
 **Version**: 1.0  
 **Date**: 2025-06-14  
-**Author**: Product Team  
+**Author**: Tomochika Hara
 **Status**: Draft
 
 ---
@@ -13,7 +13,6 @@ The Facility Reservation System is a lightweight, API-first platform designed to
 
 **Current State**: Foundation complete with user/facility management and robust API architecture  
 **Target State**: Complete reservation platform with real-time booking, conflict resolution, and analytics  
-**Timeline**: MVP 1.0 within 3 months, full platform within 6 months
 
 ### Key Value Propositions
 - **Simplicity over complexity**: Focused on core booking workflows, not feature bloat
@@ -174,7 +173,6 @@ Organizations that would benefit most:
 - One-click booking for available slots
 - Basic booking details (title, description, attendees)
 - Immediate confirmation
-- Email/notification confirmation
 
 **Acceptance Criteria**:
 - Booking process completable in <60 seconds
@@ -203,17 +201,7 @@ Organizations that would benefit most:
 
 ### Phase 2: Enhanced User Experience (MVP 1.5)
 
-#### FR-5: Advanced Search & Filtering
-**Priority**: P1 (Should Have)  
-**User Story**: As Sarah, I need to find facilities that meet specific requirements for executive meetings  
-
-**Requirements**:
-- Filter by capacity, features, location
-- Saved search preferences
-- Suggested alternatives for unavailable requests
-- Integration with user preferences
-
-#### FR-6: Recurring Bookings
+#### FR-5: Recurring Bookings
 **Priority**: P1 (Should Have)  
 **User Story**: As Emma, I want to book recurring team meetings without repetitive work  
 
@@ -222,38 +210,6 @@ Organizations that would benefit most:
 - Exception handling for holidays/conflicts
 - Bulk modification of recurring series
 - Smart conflict resolution
-
-#### FR-7: Proxy Booking
-**Priority**: P1 (Should Have)  
-**User Story**: As Sarah, I need to book facilities on behalf of executives  
-
-**Requirements**:
-- Delegated booking permissions
-- Book on behalf of specific users
-- Approval workflows for sensitive facilities
-- Audit trail of proxy bookings
-
-### Phase 3: Analytics & Optimization (MVP 2.0)
-
-#### FR-8: Utilization Analytics
-**Priority**: P1 (Should Have)  
-**User Story**: As Marcus, I need data to optimize facility allocation and planning  
-
-**Requirements**:
-- Facility utilization reports
-- Peak usage patterns
-- User behavior analytics
-- Cost per facility hour metrics
-
-#### FR-9: Smart Recommendations
-**Priority**: P2 (Nice to Have)  
-**User Story**: As Emma, I want the system to learn my preferences and suggest optimal bookings  
-
-**Requirements**:
-- Machine learning for booking patterns
-- Personalized facility recommendations
-- Optimal meeting time suggestions
-- Automatic rebooking for cancellations
 
 ---
 
@@ -294,15 +250,7 @@ Organizations that would benefit most:
 
 #### TR-6: API-First Architecture
 - **REST API**: Complete functionality exposed via REST
-- **Client SDKs**: Auto-generated SDKs for major languages
 - **OpenAPI**: Comprehensive API documentation
-- **Webhooks**: Real-time event notifications
-
-#### TR-7: External Integrations
-- **Calendar Integration**: Two-way sync with Google Calendar, Outlook
-- **SSO Integration**: SAML, OAuth, LDAP support
-- **Notification Systems**: Email, Slack, Microsoft Teams
-- **Analytics Integration**: Export data to business intelligence tools
 
 ---
 
@@ -341,7 +289,6 @@ Organizations that would benefit most:
 - Admin oversight dashboard
 
 **Week 7-8: Integration & Testing**
-- Email notifications
 - API documentation
 - End-to-end testing
 - Performance optimization
@@ -471,7 +418,6 @@ Organizations that would benefit most:
 - [ ] Users can create bookings without conflicts
 - [ ] Users can view and manage their bookings
 - [ ] Admins can oversee facility usage
-- [ ] Basic email notifications work
 
 #### Performance Standards
 - [ ] Search results load in <2 seconds
@@ -526,4 +472,4 @@ Organizations that would benefit most:
 
 ---
 
-*This PRD is a living document that will be updated as we learn more about user needs and market conditions. For questions or feedback, contact the product team.*
+*This PRD is a living document that will be updated as we learn more about user needs and market conditions. For questions or feedback, contact Tomochika Hara*
