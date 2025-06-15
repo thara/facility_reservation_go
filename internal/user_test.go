@@ -20,7 +20,7 @@ func TestCreateUser(t *testing.T) {
 	ctx := t.Context()
 	db := setupTestDatabase(ctx, t)
 
-	service := internal.NewService(db)
+	ds := internal.NewDataStore(db)
 
 	t.Run("creates staff user successfully", func(t *testing.T) {
 		params := internal.CreateUserParams{
@@ -28,7 +28,7 @@ func TestCreateUser(t *testing.T) {
 			IsStaff:  true,
 		}
 
-		result, err := service.CreateUser(ctx, params)
+		result, err := internal.CreateUser(ctx, ds, params)
 
 		require.NoError(t, err)
 		assert.NotNil(t, result)
@@ -57,7 +57,7 @@ func TestCreateUser(t *testing.T) {
 			IsStaff:  false,
 		}
 
-		result, err := service.CreateUser(ctx, params)
+		result, err := internal.CreateUser(ctx, ds, params)
 
 		require.NoError(t, err)
 		assert.NotNil(t, result)
@@ -75,11 +75,11 @@ func TestCreateUser(t *testing.T) {
 			IsStaff:  false,
 		}
 
-		_, err := service.CreateUser(ctx, params)
+		_, err := internal.CreateUser(ctx, ds, params)
 		require.NoError(t, err)
 
 		// Try to create user with same username
-		_, err = service.CreateUser(ctx, params)
+		_, err = internal.CreateUser(ctx, ds, params)
 		require.Error(t, err)
 		assert.Contains(t, err.Error(), "failed to create user")
 	})
@@ -94,7 +94,7 @@ func TestCreateUser(t *testing.T) {
 				IsStaff:  false,
 			}
 
-			result, err := service.CreateUser(ctx, params)
+			result, err := internal.CreateUser(ctx, ds, params)
 			require.NoError(t, err)
 
 			// Check token is unique
@@ -109,7 +109,7 @@ func TestCreateUser(t *testing.T) {
 			IsStaff:  false,
 		}
 
-		result, err := service.CreateUser(ctx, params)
+		result, err := internal.CreateUser(ctx, ds, params)
 		require.NoError(t, err)
 
 		// Verify UUIDs are valid format
@@ -136,7 +136,7 @@ func TestCreateUserTransactionRollback(t *testing.T) {
 	ctx := t.Context()
 	db := setupTestDatabase(ctx, t)
 
-	service := internal.NewService(db)
+	ds := internal.NewDataStore(db)
 
 	t.Run("transaction rolls back on token creation failure", func(t *testing.T) {
 		// This test is conceptual - in practice, token creation would rarely fail
@@ -148,15 +148,15 @@ func TestCreateUserTransactionRollback(t *testing.T) {
 		}
 
 		// Create user successfully
-		result, err := service.CreateUser(ctx, params)
+		result, err := internal.CreateUser(ctx, ds, params)
 		require.NoError(t, err)
 
 		// Verify user was created
-		users := getUsersByUsername(t, db, params.Username)
+		users := getUsersByUsername(t, ds, params.Username)
 		assert.Len(t, users, 1)
 
 		// Verify token was created
-		tokens := getTokensByUserID(t, db, result.User.ID)
+		tokens := getTokensByUserID(t, ds, result.User.ID)
 		assert.Len(t, tokens, 1)
 	})
 }
@@ -180,18 +180,18 @@ func setupTestDatabase(
 	return ds
 }
 
-func getUsersByUsername(t *testing.T, database internal.DatabaseService, username string) []db.User {
+func getUsersByUsername(t *testing.T, ds *internal.DataStore, username string) []db.User {
 	t.Helper()
-	user, err := database.Queries().GetUserByUsername(t.Context(), username)
+	user, err := ds.GetUserByUsername(t.Context(), username)
 	if err != nil {
 		return []db.User{}
 	}
 	return []db.User{user}
 }
 
-func getTokensByUserID(t *testing.T, database internal.DatabaseService, userID uuid.UUID) []db.UserToken {
+func getTokensByUserID(t *testing.T, ds *internal.DataStore, userID uuid.UUID) []db.UserToken {
 	t.Helper()
-	tokens, err := database.Queries().ListUserTokens(t.Context(), userID)
+	tokens, err := ds.ListUserTokens(t.Context(), userID)
 	if err != nil {
 		return []db.UserToken{}
 	}

@@ -26,16 +26,16 @@ type CreateUserResult struct {
 	Token db.UserToken
 }
 
-// CreateUser creates a new user with an API token.
-func (s *Service) CreateUser(ctx context.Context, params CreateUserParams) (*CreateUserResult, error) {
+// CreateUser creates a new user with a secure token.
+func CreateUser(ctx context.Context, ds *DataStore, params CreateUserParams) (*CreateUserResult, error) {
 	var result *CreateUserResult
 
-	err := s.db.Transaction(ctx, func(ctx context.Context, q *TxQueries) error {
+	err := ds.Transaction(ctx, func(ctx context.Context, tx *Transaction) error {
 		// Generate UUID v7 for user
 		userID := uuid.Must(uuid.NewV7())
 
 		// Create user
-		user, err := q.CreateUser(ctx, db.CreateUserParams{
+		user, err := tx.CreateUser(ctx, db.CreateUserParams{
 			ID:       userID,
 			Username: params.Username,
 			IsStaff:  params.IsStaff,
@@ -51,7 +51,7 @@ func (s *Service) CreateUser(ctx context.Context, params CreateUserParams) (*Cre
 		token := generateToken()
 
 		// Create token for user
-		userToken, err := q.CreateToken(ctx, db.CreateTokenParams{
+		userToken, err := tx.CreateToken(ctx, db.CreateTokenParams{
 			ID:        tokenID,
 			UserID:    user.ID,
 			Token:     token,

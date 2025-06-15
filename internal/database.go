@@ -15,7 +15,7 @@ const (
 )
 
 // TransactionFunc defines the function signature for database transactions.
-type TransactionFunc func(context.Context, *TxQueries) error
+type TransactionFunc func(context.Context, *Transaction) error
 
 // DatabaseService defines the contract for database operations.
 type DatabaseService interface {
@@ -25,9 +25,9 @@ type DatabaseService interface {
 	Transaction(ctx context.Context, fn TransactionFunc) error
 }
 
-// TxQueries wraps db.Queries to indicate transaction usage.
-type TxQueries struct {
-	*db.Queries
+// Transaction wraps db.Queries to indicate transaction usage.
+type Transaction struct {
+	db.Querier
 }
 
 // PgxDatabaseService implements DatabaseInterface using pgx.
@@ -101,7 +101,7 @@ func (ds *PgxDatabaseService) Transaction(ctx context.Context, fn TransactionFun
 		}
 	}()
 
-	q := &TxQueries{db.New(tx)}
+	q := &Transaction{db.New(tx)}
 	if err := fn(ctx, q); err != nil {
 		return err
 	}
