@@ -71,7 +71,7 @@ func run(ctx context.Context) error {
 	slog.InfoContext(ctx, "database connection established", "url", databaseURL)
 
 	// Create service with database dependency
-	svc := internal.NewService(db)
+	svc := internal.NewAPIService(db)
 
 	handler, err := api.NewServer(svc)
 	if err != nil {
