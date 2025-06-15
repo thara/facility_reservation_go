@@ -26,6 +26,12 @@ This command performs the complete development build pipeline:
 
 All business logic, UUID generation, and data processing must be handled in the application layer, not in the database.
 
+## Documentation Policy
+
+**DO NOT include production code in documentation files.**
+
+Documentation should reference code locations and patterns, but not duplicate actual implementation. This prevents maintenance burden and keeps docs focused on concepts rather than implementation details.
+
 ## Essential Commands
 
 ### API Schema Generation
