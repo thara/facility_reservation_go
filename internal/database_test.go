@@ -18,7 +18,7 @@ func TestNewDatabaseService(t *testing.T) {
 			t.Skip("Skipping integration test in short mode")
 		}
 
-		ds := internal.SetupTestDatabase(ctx, t)
+		ds := setupTestDatabase(ctx, t)
 
 		// Verify queries interface is available
 		assert.NotNil(t, ds.Queries())
@@ -53,7 +53,7 @@ func TestDatabaseService_HealthCheck(t *testing.T) {
 	}
 
 	ctx := t.Context()
-	ds := internal.SetupTestDatabase(ctx, t)
+	ds := setupTestDatabase(ctx, t)
 
 	t.Run("successful health check", func(t *testing.T) {
 		err := ds.HealthCheck(ctx)
@@ -78,7 +78,7 @@ func TestDatabaseService_Close(t *testing.T) {
 	}
 
 	ctx := t.Context()
-	ds := internal.SetupTestDatabase(ctx, t)
+	ds := setupTestDatabase(ctx, t)
 
 	// Verify connection works before closing
 	err := ds.HealthCheck(ctx)
@@ -98,7 +98,7 @@ func TestDatabaseService_ConnectionPoolConfiguration(t *testing.T) {
 	}
 
 	ctx := t.Context()
-	ds := internal.SetupTestDatabase(ctx, t)
+	ds := setupTestDatabase(ctx, t)
 
 	pool := ds.Pool()
 	require.NotNil(t, pool)
@@ -120,7 +120,7 @@ func TestDatabaseService_Integration(t *testing.T) {
 	ctx := t.Context()
 
 	t.Run("concurrent health checks", func(t *testing.T) {
-		ds := internal.SetupTestDatabase(ctx, t)
+		ds := setupTestDatabase(ctx, t)
 
 		// Run multiple health checks concurrently
 		done := make(chan error, 10)

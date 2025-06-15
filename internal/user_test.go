@@ -1,8 +1,10 @@
 package internal_test
 
 import (
+	"context"
 	"fmt"
 	"testing"
+	"time"
 
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
@@ -17,13 +19,13 @@ func TestCreateUser(t *testing.T) {
 	}
 
 	ctx := t.Context()
-	db := setupTestDatabase(t)
+	db := setupTestDatabase(ctx, t)
 
 	service := internal.NewService(db)
 
 	t.Run("creates staff user successfully", func(t *testing.T) {
 		params := internal.CreateUserParams{
-			Username: "admin.user",
+			Username: fmt.Sprintf("admin.user.%d", time.Now().UnixNano()),
 			IsStaff:  true,
 		}
 
@@ -33,7 +35,7 @@ func TestCreateUser(t *testing.T) {
 		assert.NotNil(t, result)
 
 		// Verify user properties
-		assert.Equal(t, "admin.user", result.User.Username)
+		assert.Equal(t, params.Username, result.User.Username)
 		assert.True(t, result.User.IsStaff)
 		assert.NotEmpty(t, result.User.ID)
 		assert.False(t, result.User.CreatedAt.IsZero())
@@ -52,7 +54,7 @@ func TestCreateUser(t *testing.T) {
 
 	t.Run("creates regular user successfully", func(t *testing.T) {
 		params := internal.CreateUserParams{
-			Username: "regular.user",
+			Username: fmt.Sprintf("regular.user.%d", time.Now().UnixNano()),
 			IsStaff:  false,
 		}
 
@@ -62,7 +64,7 @@ func TestCreateUser(t *testing.T) {
 		assert.NotNil(t, result)
 
 		// Verify user properties
-		assert.Equal(t, "regular.user", result.User.Username)
+		assert.Equal(t, params.Username, result.User.Username)
 		assert.False(t, result.User.IsStaff)
 		assert.NotEmpty(t, result.User.ID)
 	})
@@ -70,7 +72,7 @@ func TestCreateUser(t *testing.T) {
 	t.Run("fails with duplicate username", func(t *testing.T) {
 		// Create first user
 		params := internal.CreateUserParams{
-			Username: "duplicate.user",
+			Username: fmt.Sprintf("duplicate.user.%d", time.Now().UnixNano()),
 			IsStaff:  false,
 		}
 
@@ -89,7 +91,7 @@ func TestCreateUser(t *testing.T) {
 
 		for i := range 10 {
 			params := internal.CreateUserParams{
-				Username: fmt.Sprintf("user%d", i),
+				Username: fmt.Sprintf("user%d.%d", i, time.Now().UnixNano()),
 				IsStaff:  false,
 			}
 
@@ -104,7 +106,7 @@ func TestCreateUser(t *testing.T) {
 
 	t.Run("generates UUID v7 format", func(t *testing.T) {
 		params := internal.CreateUserParams{
-			Username: "uuid.test.user",
+			Username: fmt.Sprintf("uuid.test.user.%d", time.Now().UnixNano()),
 			IsStaff:  false,
 		}
 
@@ -133,7 +135,7 @@ func TestCreateUserTransactionRollback(t *testing.T) {
 	}
 
 	ctx := t.Context()
-	db := setupTestDatabase(t)
+	db := setupTestDatabase(ctx, t)
 
 	service := internal.NewService(db)
 
@@ -142,7 +144,7 @@ func TestCreateUserTransactionRollback(t *testing.T) {
 		// after user creation succeeds, but this demonstrates transaction behavior
 
 		params := internal.CreateUserParams{
-			Username: "transaction.test",
+			Username: fmt.Sprintf("transaction.test.%d", time.Now().UnixNano()),
 			IsStaff:  false,
 		}
 
@@ -151,7 +153,7 @@ func TestCreateUserTransactionRollback(t *testing.T) {
 		require.NoError(t, err)
 
 		// Verify user was created
-		users := getUsersByUsername(t, db, "transaction.test")
+		users := getUsersByUsername(t, db, params.Username)
 		assert.Len(t, users, 1)
 
 		// Verify token was created
@@ -162,11 +164,17 @@ func TestCreateUserTransactionRollback(t *testing.T) {
 
 // Helper functions for testing
 
-func setupTestDatabase(t *testing.T) *internal.DatabaseService {
+func setupTestDatabase(ctx context.Context, t *testing.T) *internal.DatabaseService {
 	t.Helper()
 
-	ctx := t.Context()
-	return internal.SetupTestDatabase(ctx, t)
+	testDatabaseURL := "postgres://postgres:postgres@localhost:5433/facility_reservation_test?sslmode=disable"
+
+	ds, err := internal.NewDatabaseService(ctx, testDatabaseURL)
+	if err != nil {
+		t.Fatalf("Failed to setup test database: %v", err)
+	}
+
+	return ds
 }
 
 func getUsersByUsername(t *testing.T, database *internal.DatabaseService, username string) []db.User {

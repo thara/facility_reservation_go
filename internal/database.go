@@ -99,7 +99,7 @@ func (ds *DatabaseService) Pool() *pgxpool.Pool {
 
 // Close closes the database connection pool.
 func (ds *DatabaseService) Close() {
-	// ds.pool.Close()
+	ds.pool.Close()
 }
 
 // Transaction executes a function within a database transaction.
