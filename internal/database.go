@@ -14,10 +14,15 @@ const (
 	maxConnIdleTimeMinutes = 30
 )
 
-// DatabaseService manages database connections and provides query interface.
-type DatabaseService struct {
-	pool    *pgxpool.Pool
-	queries *db.Queries
+// TransactionFunc defines the function signature for database transactions.
+type TransactionFunc func(context.Context, *TxQueries) error
+
+// DatabaseService defines the contract for database operations.
+type DatabaseService interface {
+	Queries() db.Querier
+	Close()
+	HealthCheck(ctx context.Context) error
+	Transaction(ctx context.Context, fn TransactionFunc) error
 }
 
 // TxQueries wraps db.Queries to indicate transaction usage.
@@ -25,8 +30,19 @@ type TxQueries struct {
 	*db.Queries
 }
 
+// PgxDatabaseService implements DatabaseInterface using pgx.
+type PgxDatabaseService struct {
+	pool    *pgxpool.Pool
+	queries *db.Queries
+}
+
 // NewDatabaseService creates a new database service with connection pool.
-func NewDatabaseService(ctx context.Context, databaseURL string) (*DatabaseService, error) {
+//
+//nolint:ireturn // returns interface to enable implementation swapping
+func NewDatabaseService(
+	ctx context.Context,
+	databaseURL string,
+) (DatabaseService, error) {
 	// Configure connection pool
 	config, err := pgxpool.ParseConfig(databaseURL)
 	if err != nil {
@@ -51,29 +67,29 @@ func NewDatabaseService(ctx context.Context, databaseURL string) (*DatabaseServi
 		return nil, fmt.Errorf("failed to ping database: %w", err)
 	}
 
-	return &DatabaseService{
+	return &PgxDatabaseService{
 		pool:    pool,
 		queries: db.New(pool),
 	}, nil
 }
 
 // Queries returns the sqlc-generated query interface.
-func (ds *DatabaseService) Queries() *db.Queries {
+func (ds *PgxDatabaseService) Queries() db.Querier { //nolint:ireturn // returns interface to encupsulate implementation details
 	return ds.queries
 }
 
 // Pool returns the underlying connection pool for transactions.
-func (ds *DatabaseService) Pool() *pgxpool.Pool {
+func (ds *PgxDatabaseService) Pool() *pgxpool.Pool {
 	return ds.pool
 }
 
 // Close closes the database connection pool.
-func (ds *DatabaseService) Close() {
+func (ds *PgxDatabaseService) Close() {
 	ds.pool.Close()
 }
 
 // Transaction executes a function within a database transaction.
-func (ds *DatabaseService) Transaction(ctx context.Context, fn func(context.Context, *TxQueries) error) error {
+func (ds *PgxDatabaseService) Transaction(ctx context.Context, fn TransactionFunc) error {
 	tx, err := ds.pool.Begin(ctx)
 	if err != nil {
 		return fmt.Errorf("failed to begin transaction: %w", err)
@@ -98,7 +114,7 @@ func (ds *DatabaseService) Transaction(ctx context.Context, fn func(context.Cont
 }
 
 // HealthCheck verifies database connectivity.
-func (ds *DatabaseService) HealthCheck(ctx context.Context) error {
+func (ds *PgxDatabaseService) HealthCheck(ctx context.Context) error {
 	if err := ds.pool.Ping(ctx); err != nil {
 		return fmt.Errorf("database health check failed: %w", err)
 	}

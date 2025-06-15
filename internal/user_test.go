@@ -163,7 +163,11 @@ func TestCreateUserTransactionRollback(t *testing.T) {
 
 // Helper functions for testing
 
-func setupTestDatabase(ctx context.Context, t *testing.T) *internal.DatabaseService {
+//nolint:ireturn // returns interface for test flexibility
+func setupTestDatabase(
+	ctx context.Context,
+	t *testing.T,
+) internal.DatabaseService {
 	t.Helper()
 
 	testDatabaseURL := "postgres://postgres:postgres@localhost:5433/facility_reservation_test?sslmode=disable"
@@ -176,7 +180,7 @@ func setupTestDatabase(ctx context.Context, t *testing.T) *internal.DatabaseServ
 	return ds
 }
 
-func getUsersByUsername(t *testing.T, database *internal.DatabaseService, username string) []db.User {
+func getUsersByUsername(t *testing.T, database internal.DatabaseService, username string) []db.User {
 	t.Helper()
 	user, err := database.Queries().GetUserByUsername(t.Context(), username)
 	if err != nil {
@@ -185,7 +189,7 @@ func getUsersByUsername(t *testing.T, database *internal.DatabaseService, userna
 	return []db.User{user}
 }
 
-func getTokensByUserID(t *testing.T, database *internal.DatabaseService, userID uuid.UUID) []db.UserToken {
+func getTokensByUserID(t *testing.T, database internal.DatabaseService, userID uuid.UUID) []db.UserToken {
 	t.Helper()
 	tokens, err := database.Queries().ListUserTokens(t.Context(), userID)
 	if err != nil {

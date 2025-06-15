@@ -69,7 +69,7 @@ func (s *Service) CreateUser(ctx context.Context, params CreateUserParams) (*Cre
 		return nil
 	})
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("transaction failed: %w", err)
 	}
 
 	return result, nil

@@ -23,8 +23,10 @@ func TestNewDatabaseService(t *testing.T) {
 		// Verify queries interface is available
 		assert.NotNil(t, ds.Queries())
 
-		// Verify pool is available
-		assert.NotNil(t, ds.Pool())
+		// Verify pool is available (cast to concrete type for testing)
+		if pgxService, ok := ds.(*internal.PgxDatabaseService); ok {
+			assert.NotNil(t, pgxService.Pool())
+		}
 	})
 
 	t.Run("invalid database URL", func(t *testing.T) {
@@ -100,7 +102,11 @@ func TestDatabaseService_ConnectionPoolConfiguration(t *testing.T) {
 	ctx := t.Context()
 	ds := setupTestDatabase(ctx, t)
 
-	pool := ds.Pool()
+	// Cast to concrete type to access pool configuration
+	pgxService, ok := ds.(*internal.PgxDatabaseService)
+	require.True(t, ok, "Expected PgxDatabaseService implementation")
+
+	pool := pgxService.Pool()
 	require.NotNil(t, pool)
 
 	// Test that pool configuration is applied correctly
