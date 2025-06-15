@@ -283,7 +283,7 @@ sequenceDiagram
     participant Server
     participant PostgreSQL
 
-    Main->>Database: NewDatabaseService()
+    Main->>Database: NewDBService()
     Database->>PostgreSQL: Connect & Ping
     PostgreSQL-->>Database: Connection Established
     Main->>Service: NewService(database)

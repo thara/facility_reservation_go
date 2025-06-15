@@ -7,11 +7,11 @@ import (
 // Service implements the facility reservation API handlers by embedding the generated handler interface.
 type Service struct {
 	api.UnimplementedHandler
-	dbService DatabaseService
+	dbService DBService
 }
 
 // NewService creates a new service with database dependency.
-func NewService(dbService DatabaseService) *Service {
+func NewService(dbService DBService) *Service {
 	return &Service{
 		UnimplementedHandler: api.UnimplementedHandler{},
 		dbService:            dbService,

@@ -167,12 +167,12 @@ func TestCreateUserTransactionRollback(t *testing.T) {
 func setupTestDatabase(
 	ctx context.Context,
 	t *testing.T,
-) internal.DatabaseService {
+) internal.DBService {
 	t.Helper()
 
 	testDatabaseURL := "postgres://postgres:postgres@localhost:5433/facility_reservation_test?sslmode=disable"
 
-	ds, err := internal.NewDatabaseService(ctx, testDatabaseURL)
+	ds, err := internal.NewDBService(ctx, testDatabaseURL)
 	if err != nil {
 		t.Fatalf("Failed to setup test database: %v", err)
 	}

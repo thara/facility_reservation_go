@@ -9,10 +9,10 @@ import (
 type DataStore struct {
 	db.Querier
 
-	dbService DatabaseService
+	dbService DBService
 }
 
-func NewDataStore(ds DatabaseService) *DataStore {
+func NewDataStore(ds DBService) *DataStore {
 	return &DataStore{
 		Querier:   ds.Queries(),
 		dbService: ds,

@@ -62,7 +62,7 @@ func main() {
 
 func run(ctx context.Context) error {
 	// Initialize database
-	db, err := internal.NewDatabaseService(ctx, databaseURL)
+	db, err := internal.NewDBService(ctx, databaseURL)
 	if err != nil {
 		return fmt.Errorf("failed to initialize database: %w", err)
 	}

@@ -10,7 +10,7 @@ import (
 	"github.com/thara/facility_reservation_go/internal"
 )
 
-func TestNewDatabaseService(t *testing.T) {
+func TestNewDBService(t *testing.T) {
 	ctx := t.Context()
 
 	t.Run("successful connection", func(t *testing.T) {
@@ -24,7 +24,7 @@ func TestNewDatabaseService(t *testing.T) {
 		assert.NotNil(t, ds.Queries())
 
 		// Verify pool is available (cast to concrete type for testing)
-		if pgxService, ok := ds.(*internal.PgxDatabaseService); ok {
+		if pgxService, ok := ds.(*internal.PgxDBService); ok {
 			assert.NotNil(t, pgxService.Pool())
 		}
 	})
@@ -32,7 +32,7 @@ func TestNewDatabaseService(t *testing.T) {
 	t.Run("invalid database URL", func(t *testing.T) {
 		invalidURL := "invalid://url"
 
-		ds, err := internal.NewDatabaseService(ctx, invalidURL)
+		ds, err := internal.NewDBService(ctx, invalidURL)
 		require.Error(t, err)
 		assert.Nil(t, ds)
 		assert.Contains(t, err.Error(), "failed to parse database URL")
@@ -42,7 +42,7 @@ func TestNewDatabaseService(t *testing.T) {
 		// Use non-existent database
 		badURL := "postgres://user:pass@nonexistent:5432/db"
 
-		ds, err := internal.NewDatabaseService(ctx, badURL)
+		ds, err := internal.NewDBService(ctx, badURL)
 		require.Error(t, err)
 		assert.Nil(t, ds)
 		assert.Contains(t, err.Error(), "failed to ping database")
@@ -103,8 +103,8 @@ func TestDatabaseService_ConnectionPoolConfiguration(t *testing.T) {
 	ds := setupTestDatabase(ctx, t)
 
 	// Cast to concrete type to access pool configuration
-	pgxService, ok := ds.(*internal.PgxDatabaseService)
-	require.True(t, ok, "Expected PgxDatabaseService implementation")
+	pgxService, ok := ds.(*internal.PgxDBService)
+	require.True(t, ok, "Expected PgxDBService implementation")
 
 	pool := pgxService.Pool()
 	require.NotNil(t, pool)
