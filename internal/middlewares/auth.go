@@ -15,13 +15,13 @@ import (
 type contextKey string
 
 const (
-	// UserContextKey is the key used to store the authenticated user in the request context.
-	UserContextKey contextKey = "authenticated_user"
+	// userContextKey is the key used to store the authenticated user in the request context.
+	userContextKey contextKey = "authenticated_user"
 )
 
 // AuthMiddleware provides token-based authentication for HTTP handlers.
 // It expects a Bearer token in the Authorization header and validates it against the database.
-func AuthMiddleware(db internal.DBService) func(http.Handler) http.Handler {
+func AuthMiddleware(querier internal.UserTokenQuerier) func(http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			ctx := r.Context()
@@ -41,7 +41,7 @@ func AuthMiddleware(db internal.DBService) func(http.Handler) http.Handler {
 			}
 
 			// Validate token and get user
-			user, err := authenticateToken(ctx, db, token)
+			user, err := authenticateToken(ctx, querier, token)
 			if err != nil {
 				slog.WarnContext(ctx, "authentication failed: invalid token",
 					"method", r.Method,
@@ -55,7 +55,7 @@ func AuthMiddleware(db internal.DBService) func(http.Handler) http.Handler {
 			}
 
 			// Add user to context
-			ctxWithUser := context.WithValue(ctx, UserContextKey, user)
+			ctxWithUser := withUser(ctx, user)
 			requestWithUser := r.WithContext(ctxWithUser)
 
 			slog.InfoContext(ctxWithUser, "user authenticated",
@@ -73,11 +73,15 @@ func AuthMiddleware(db internal.DBService) func(http.Handler) http.Handler {
 	}
 }
 
-
 // GetUserFromContext retrieves the authenticated user from the request context.
 func GetUserFromContext(ctx context.Context) (*internal.AuthenticatedUser, bool) {
-	user, ok := ctx.Value(UserContextKey).(*internal.AuthenticatedUser)
+	user, ok := ctx.Value(userContextKey).(*internal.AuthenticatedUser)
 	return user, ok
+}
+
+// withUser returns a new context with the authenticated user stored in it.
+func withUser(ctx context.Context, user *internal.AuthenticatedUser) context.Context {
+	return context.WithValue(ctx, userContextKey, user)
 }
 
 // extractBearerToken extracts the Bearer token from the Authorization header.
@@ -105,18 +109,15 @@ func extractBearerToken(r *http.Request) (string, error) {
 // authenticateToken validates the token and returns the authenticated user.
 func authenticateToken(
 	ctx context.Context,
-	dbService internal.DBService,
+	querier internal.UserTokenQuerier,
 	token string,
 ) (*internal.AuthenticatedUser, error) {
-	if dbService == nil {
-		return nil, errors.New("database service is nil")
+	if querier == nil {
+		return nil, errors.New("querier is nil")
 	}
 
-	// Create datastore for database operations
-	ds := internal.NewDataStore(dbService)
-
 	// Use the GetAuthenticatedUser function from internal/user.go
-	user, err := internal.GetAuthenticatedUser(ctx, ds, token)
+	user, err := internal.GetAuthenticatedUser(ctx, querier, token)
 	if err != nil {
 		return nil, fmt.Errorf("authentication failed: %w", err)
 	}

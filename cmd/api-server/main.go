@@ -70,7 +70,8 @@ func run(ctx context.Context) error {
 
 	slog.InfoContext(ctx, "database connection established", "url", databaseURL)
 
-	// Create service with database dependency
+	// Create datastore and service with database dependency
+	ds := internal.NewDataStore(db)
 	svc := internal.NewAPIService(db)
 
 	handler, err := api.NewServer(svc)
@@ -80,7 +81,7 @@ func run(ctx context.Context) error {
 
 	// Wrap handler with middleware (recovery first, then auth, then logging)
 	recoveredHandler := middlewares.RecoveryMiddleware(handler)
-	authHandler := middlewares.AuthMiddleware(db)(recoveredHandler)
+	authHandler := middlewares.AuthMiddleware(ds)(recoveredHandler)
 	loggedHandler := middlewares.LoggingMiddleware(authHandler)
 
 	server := &http.Server{

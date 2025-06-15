@@ -15,6 +15,11 @@ const (
 	tokenSizeBytes = 32
 )
 
+// UserTokenQuerier defines the interface for querying user tokens.
+type UserTokenQuerier interface {
+	GetUserByToken(ctx context.Context, token string) (db.GetUserByTokenRow, error)
+}
+
 // AuthenticatedUser represents the authenticated user information.
 type AuthenticatedUser struct {
 	ID       string `json:"id"`
@@ -94,13 +99,13 @@ func generateToken() string {
 }
 
 // GetAuthenticatedUser validates the token and returns the authenticated user.
-func GetAuthenticatedUser(ctx context.Context, ds *DataStore, token string) (*AuthenticatedUser, error) {
-	if ds == nil {
-		return nil, errors.New("datastore is nil")
+func GetAuthenticatedUser(ctx context.Context, querier UserTokenQuerier, token string) (*AuthenticatedUser, error) {
+	if querier == nil {
+		return nil, errors.New("querier is nil")
 	}
 
 	// Get user by token from database
-	userRow, err := ds.GetUserByToken(ctx, token)
+	userRow, err := querier.GetUserByToken(ctx, token)
 	if err != nil {
 		// Check if it's a "not found" error (typical for invalid tokens)
 		return nil, errors.New("invalid or expired token")
