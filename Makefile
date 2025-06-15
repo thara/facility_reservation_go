@@ -45,11 +45,11 @@ migrate-version:
 
 .PHONY: schema-generate
 schema-generate:
-	./scripts/generate-schema.sh
+	./_scripts/generate-schema.sh
 
 .PHONY: schema-check
 schema-check:
-	./scripts/check-schema.sh
+	./_scripts/check-schema.sh
 
 .PHONY: db-up
 db-up:
