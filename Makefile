@@ -25,23 +25,23 @@ sqlc-generate:
 
 .PHONY: migrate-up
 migrate-up:
-	migrate -database "postgres://postgres:postgres@localhost:5432/facility_reservation_dev?sslmode=disable" -path migrations up
+	migrate -database "postgres://postgres:postgres@localhost:5432/facility_reservation_dev?sslmode=disable" -path _migrations up
 
 .PHONY: migrate-down
 migrate-down:
-	migrate -database "postgres://postgres:postgres@localhost:5432/facility_reservation_dev?sslmode=disable" -path migrations down
+	migrate -database "postgres://postgres:postgres@localhost:5432/facility_reservation_dev?sslmode=disable" -path _migrations down
 
 .PHONY: migrate-up-test
 migrate-up-test:
-	migrate -database "postgres://postgres:postgres@localhost:5433/facility_reservation_test?sslmode=disable" -path migrations up
+	migrate -database "postgres://postgres:postgres@localhost:5433/facility_reservation_test?sslmode=disable" -path _migrations up
 
 .PHONY: migrate-down-test
 migrate-down-test:
-	migrate -database "postgres://postgres:postgres@localhost:5433/facility_reservation_test?sslmode=disable" -path migrations down
+	migrate -database "postgres://postgres:postgres@localhost:5433/facility_reservation_test?sslmode=disable" -path _migrations down
 
 .PHONY: migrate-version
 migrate-version:
-	migrate -database "postgres://postgres:postgres@localhost:5432/facility_reservation_dev?sslmode=disable" -path migrations version
+	migrate -database "postgres://postgres:postgres@localhost:5432/facility_reservation_dev?sslmode=disable" -path _migrations version
 
 .PHONY: schema-generate
 schema-generate:
