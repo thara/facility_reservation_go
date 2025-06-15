@@ -7,11 +7,12 @@ set -e
 
 echo "Generating schema.sql from database..."
 
-# Generate schema from development database
+# Generate schema from development database and filter out version comments
 docker compose exec -u postgres postgres pg_dump \
     --schema-only \
     --no-owner \
     --no-privileges \
-    facility_reservation_dev > _db/schema.sql
+    facility_reservation_dev | \
+    grep -v -E "^-- Dumped (from database version|by pg_dump version)" > _db/schema.sql
 
 echo "Schema generated successfully at _db/schema.sql"

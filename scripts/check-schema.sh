@@ -14,15 +14,17 @@ temp_schema=$(mktemp)
 
 # Check if we're in CI (GitHub Actions) or local environment
 if [ "$CI" = "true" ]; then
-    # In CI, use pg_dump directly (postgresql-client should be installed)
-    pg_dump --schema-only --no-owner --no-privileges "$DATABASE_URL" > "$temp_schema"
+    # In CI, use pg_dump directly and filter out version comments
+    pg_dump --schema-only --no-owner --no-privileges "$DATABASE_URL" | \
+        grep -v -E "^-- Dumped (from database version|by pg_dump version)" > "$temp_schema"
 else
-    # Locally, use Docker Compose
+    # Locally, use Docker Compose and filter out version comments
     docker compose exec -u postgres postgres pg_dump \
         --schema-only \
         --no-owner \
         --no-privileges \
-        facility_reservation_dev > "$temp_schema"
+        facility_reservation_dev | \
+        grep -v -E "^-- Dumped (from database version|by pg_dump version)" > "$temp_schema"
 fi
 
 # Compare with existing schema.sql
