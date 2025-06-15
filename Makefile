@@ -31,13 +31,6 @@ migrate-up:
 migrate-down:
 	migrate -database "postgres://postgres:postgres@localhost:5432/facility_reservation_dev?sslmode=disable" -path _migrations down
 
-.PHONY: migrate-up-test
-migrate-up-test:
-	migrate -database "postgres://postgres:postgres@localhost:5433/facility_reservation_test?sslmode=disable" -path _migrations up
-
-.PHONY: migrate-down-test
-migrate-down-test:
-	migrate -database "postgres://postgres:postgres@localhost:5433/facility_reservation_test?sslmode=disable" -path _migrations down
 
 .PHONY: migrate-version
 migrate-version:
@@ -70,12 +63,6 @@ db-logs:
 db-clean:
 	docker compose down -v
 
-.PHONY: db-test-up
-db-test-up:
-	docker compose up -d postgres-test
-	@echo "Waiting for test database to be ready..."
-	@until docker compose exec postgres-test pg_isready -U postgres > /dev/null 2>&1; do sleep 1; done
-	@echo "Test database is ready!"
 
 .PHONY: db-setup
 db-setup: db-up migrate-up schema-generate sqlc-generate
@@ -89,8 +76,8 @@ test-short:
 	go test ./... -v -short
 
 .PHONY: test-integration
-test-integration: db-test-up migrate-up-test
-	TEST_DATABASE_URL="postgres://postgres:postgres@localhost:5433/facility_reservation_test?sslmode=disable" go test ./... -v
+test-integration: db-up migrate-up
+	TEST_DATABASE_URL="postgres://postgres:postgres@localhost:5432/facility_reservation_dev?sslmode=disable" go test ./... -v
 
 .PHONY: test-all
 test_all: test-short test-integration
