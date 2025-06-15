@@ -2,10 +2,9 @@ package internal_test
 
 import (
 	"context"
-	"fmt"
 	"testing"
-	"time"
 
+	"github.com/brianvoe/gofakeit/v7"
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -25,7 +24,7 @@ func TestCreateUser(t *testing.T) {
 
 	t.Run("creates staff user successfully", func(t *testing.T) {
 		params := internal.CreateUserParams{
-			Username: fmt.Sprintf("admin.user.%d", time.Now().UnixNano()),
+			Username: gofakeit.Name(),
 			IsStaff:  true,
 		}
 
@@ -54,7 +53,7 @@ func TestCreateUser(t *testing.T) {
 
 	t.Run("creates regular user successfully", func(t *testing.T) {
 		params := internal.CreateUserParams{
-			Username: fmt.Sprintf("regular.user.%d", time.Now().UnixNano()),
+			Username: gofakeit.Name(),
 			IsStaff:  false,
 		}
 
@@ -72,7 +71,7 @@ func TestCreateUser(t *testing.T) {
 	t.Run("fails with duplicate username", func(t *testing.T) {
 		// Create first user
 		params := internal.CreateUserParams{
-			Username: fmt.Sprintf("duplicate.user.%d", time.Now().UnixNano()),
+			Username: gofakeit.Name(),
 			IsStaff:  false,
 		}
 
@@ -89,9 +88,9 @@ func TestCreateUser(t *testing.T) {
 		// Create multiple users and verify tokens are unique
 		tokens := make(map[string]bool)
 
-		for i := range 10 {
+		for range 10 {
 			params := internal.CreateUserParams{
-				Username: fmt.Sprintf("user%d.%d", i, time.Now().UnixNano()),
+				Username: gofakeit.Name(),
 				IsStaff:  false,
 			}
 
@@ -106,7 +105,7 @@ func TestCreateUser(t *testing.T) {
 
 	t.Run("generates UUID v7 format", func(t *testing.T) {
 		params := internal.CreateUserParams{
-			Username: fmt.Sprintf("uuid.test.user.%d", time.Now().UnixNano()),
+			Username: gofakeit.Name(),
 			IsStaff:  false,
 		}
 
@@ -144,7 +143,7 @@ func TestCreateUserTransactionRollback(t *testing.T) {
 		// after user creation succeeds, but this demonstrates transaction behavior
 
 		params := internal.CreateUserParams{
-			Username: fmt.Sprintf("transaction.test.%d", time.Now().UnixNano()),
+			Username: gofakeit.Name(),
 			IsStaff:  false,
 		}
 

@@ -12,6 +12,7 @@ require (
 )
 
 require (
+	github.com/brianvoe/gofakeit/v7 v7.2.1 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/dlclark/regexp2 v1.11.5 // indirect
 	github.com/fatih/color v1.18.0 // indirect
