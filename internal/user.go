@@ -4,6 +4,7 @@ import (
 	"context"
 	"crypto/rand"
 	"encoding/hex"
+	"errors"
 	"fmt"
 
 	"github.com/google/uuid"
@@ -13,6 +14,13 @@ import (
 const (
 	tokenSizeBytes = 32
 )
+
+// AuthenticatedUser represents the authenticated user information.
+type AuthenticatedUser struct {
+	ID       string `json:"id"`
+	Username string `json:"username"`
+	IsStaff  bool   `json:"is_staff"`
+}
 
 // CreateUserParams holds parameters for creating a new user.
 type CreateUserParams struct {
@@ -83,4 +91,27 @@ func generateToken() string {
 		panic(fmt.Sprintf("failed to generate token: %v", err))
 	}
 	return hex.EncodeToString(bytes)
+}
+
+// GetAuthenticatedUser validates the token and returns the authenticated user.
+func GetAuthenticatedUser(ctx context.Context, ds *DataStore, token string) (*AuthenticatedUser, error) {
+	if ds == nil {
+		return nil, errors.New("datastore is nil")
+	}
+
+	// Get user by token from database
+	userRow, err := ds.GetUserByToken(ctx, token)
+	if err != nil {
+		// Check if it's a "not found" error (typical for invalid tokens)
+		return nil, errors.New("invalid or expired token")
+	}
+
+	// Convert database row to our AuthenticatedUser type
+	user := &AuthenticatedUser{
+		ID:       userRow.ID.String(),
+		Username: userRow.Username,
+		IsStaff:  userRow.IsStaff,
+	}
+
+	return user, nil
 }
