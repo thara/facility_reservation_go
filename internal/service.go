@@ -1,8 +1,6 @@
 package internal
 
 import (
-	"context"
-
 	"github.com/thara/facility_reservation_go/api"
 )
 
@@ -18,10 +16,4 @@ func NewService(dbService DatabaseService) *Service {
 		UnimplementedHandler: api.UnimplementedHandler{},
 		dbService:            dbService,
 	}
-}
-
-// CreateUser creates a new user with an API token.
-func (s *Service) CreateUser(ctx context.Context, params CreateUserParams) (*CreateUserResult, error) {
-	ds := NewDataStore(s.dbService)
-	return CreateUser(ctx, ds, params)
 }
