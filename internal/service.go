@@ -1,7 +1,7 @@
 package internal
 
 import (
-	"github.com/thara/facility_reservation_go/api"
+	"github.com/thara/facility_reservation_go/internal/api"
 )
 
 // Service implements the facility reservation API handlers by embedding the generated handler interface.
