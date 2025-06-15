@@ -6,7 +6,6 @@ import (
 	"log/slog"
 	"time"
 
-	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/thara/facility_reservation_go/internal/db"
 )
@@ -15,38 +14,10 @@ const (
 	maxConnIdleTimeMinutes = 30
 )
 
-// transactionStrategy defines how transactions should be handled.
-type transactionStrategy interface {
-	execute(ctx context.Context, tx pgx.Tx, fn func(context.Context, *TxQueries) error) error
-}
-
-// commitStrategy commits transactions normally.
-type commitStrategy struct{}
-
-func (s *commitStrategy) execute(ctx context.Context, tx pgx.Tx, fn func(context.Context, *TxQueries) error) error {
-	defer func() {
-		if rollbackErr := tx.Rollback(ctx); rollbackErr != nil {
-			slog.ErrorContext(ctx, "Failed to rollback transaction", "error", rollbackErr)
-		}
-	}()
-
-	q := &TxQueries{db.New(tx)}
-	if err := fn(ctx, q); err != nil {
-		return err
-	}
-
-	if err := tx.Commit(ctx); err != nil {
-		return fmt.Errorf("failed to commit transaction: %w", err)
-	}
-
-	return nil
-}
-
 // DatabaseService manages database connections and provides query interface.
 type DatabaseService struct {
-	pool     *pgxpool.Pool
-	queries  *db.Queries
-	strategy transactionStrategy
+	pool    *pgxpool.Pool
+	queries *db.Queries
 }
 
 // TxQueries wraps db.Queries to indicate transaction usage.
@@ -81,9 +52,8 @@ func NewDatabaseService(ctx context.Context, databaseURL string) (*DatabaseServi
 	}
 
 	return &DatabaseService{
-		pool:     pool,
-		queries:  db.New(pool),
-		strategy: &commitStrategy{},
+		pool:    pool,
+		queries: db.New(pool),
 	}, nil
 }
 
@@ -109,7 +79,22 @@ func (ds *DatabaseService) Transaction(ctx context.Context, fn func(context.Cont
 		return fmt.Errorf("failed to begin transaction: %w", err)
 	}
 
-	return ds.strategy.execute(ctx, tx, fn)
+	defer func() {
+		if rollbackErr := tx.Rollback(ctx); rollbackErr != nil {
+			slog.ErrorContext(ctx, "Failed to rollback transaction", "error", rollbackErr)
+		}
+	}()
+
+	q := &TxQueries{db.New(tx)}
+	if err := fn(ctx, q); err != nil {
+		return err
+	}
+
+	if err := tx.Commit(ctx); err != nil {
+		return fmt.Errorf("failed to commit transaction: %w", err)
+	}
+
+	return nil
 }
 
 // HealthCheck verifies database connectivity.
