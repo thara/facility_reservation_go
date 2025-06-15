@@ -3,11 +3,9 @@ package internal
 import (
 	"context"
 	"fmt"
-	"log/slog"
 	"time"
 
 	"github.com/jackc/pgx/v5/pgxpool"
-	"github.com/thara/facility_reservation_go/internal/db"
 )
 
 const (
@@ -16,13 +14,8 @@ const (
 
 // DatabaseService manages database connections and provides query interface.
 type DatabaseService struct {
-	pool    *pgxpool.Pool
-	queries *db.Queries
-}
-
-// TxQueries wraps db.Queries to indicate transaction usage.
-type TxQueries struct {
-	*db.Queries
+	pool     *pgxpool.Pool
+	strategy DatabaseStrategy
 }
 
 // NewDatabaseService creates a new database service with connection pool.
@@ -52,14 +45,15 @@ func NewDatabaseService(ctx context.Context, databaseURL string) (*DatabaseServi
 	}
 
 	return &DatabaseService{
-		pool:    pool,
-		queries: db.New(pool),
+		pool: pool,
+		strategy: &defaultDatabaseStrategy{
+			pool: pool,
+		},
 	}, nil
 }
 
-// Queries returns the sqlc-generated query interface.
-func (ds *DatabaseService) Queries() *db.Queries {
-	return ds.queries
+func (ds *DatabaseService) DB() RDBMS {
+	return ds.strategy.DB()
 }
 
 // Pool returns the underlying connection pool for transactions.
@@ -69,32 +63,8 @@ func (ds *DatabaseService) Pool() *pgxpool.Pool {
 
 // Close closes the database connection pool.
 func (ds *DatabaseService) Close() {
-	ds.pool.Close()
-}
-
-// Transaction executes a function within a database transaction.
-func (ds *DatabaseService) Transaction(ctx context.Context, fn func(context.Context, *TxQueries) error) error {
-	tx, err := ds.pool.Begin(ctx)
-	if err != nil {
-		return fmt.Errorf("failed to begin transaction: %w", err)
-	}
-
-	defer func() {
-		if rollbackErr := tx.Rollback(ctx); rollbackErr != nil {
-			slog.ErrorContext(ctx, "Failed to rollback transaction", "error", rollbackErr)
-		}
-	}()
-
-	q := &TxQueries{db.New(tx)}
-	if err := fn(ctx, q); err != nil {
-		return err
-	}
-
-	if err := tx.Commit(ctx); err != nil {
-		return fmt.Errorf("failed to commit transaction: %w", err)
-	}
-
-	return nil
+	fmt.Println("Closing database connection pool")
+	ds.strategy.Close()
 }
 
 // HealthCheck verifies database connectivity.
@@ -103,4 +73,30 @@ func (ds *DatabaseService) HealthCheck(ctx context.Context) error {
 		return fmt.Errorf("database health check failed: %w", err)
 	}
 	return nil
+}
+
+type DatabaseStrategy interface {
+	DB() RDBMS
+	Close()
+}
+
+type defaultDatabaseStrategy struct {
+	pool *pgxpool.Pool
+}
+
+func (s *defaultDatabaseStrategy) DB() RDBMS {
+	return NewRDB(s.pool)
+}
+
+func (s *defaultDatabaseStrategy) Close() {
+	s.pool.Close()
+}
+
+func newDatabaseServiceWithStrategy(ctx context.Context, databaseURL string, f func(*pgxpool.Pool) DatabaseStrategy) (*DatabaseService, error) {
+	ds, err := NewDatabaseService(ctx, databaseURL)
+	if err != nil {
+		return nil, err
+	}
+	ds.strategy = f(ds.pool)
+	return ds, nil
 }

@@ -25,7 +25,7 @@ func TestCreateUser(t *testing.T) {
 
 	t.Run("creates staff user successfully", func(t *testing.T) {
 		params := internal.CreateUserParams{
-			Username: fmt.Sprintf("admin.user.%d", time.Now().UnixNano()),
+			Username: "admin.user2",
 			IsStaff:  true,
 		}
 
@@ -169,17 +169,12 @@ func setupTestDatabase(ctx context.Context, t *testing.T) *internal.DatabaseServ
 
 	testDatabaseURL := "postgres://postgres:postgres@localhost:5433/facility_reservation_test?sslmode=disable"
 
-	ds, err := internal.NewDatabaseService(ctx, testDatabaseURL)
-	if err != nil {
-		t.Fatalf("Failed to setup test database: %v", err)
-	}
-
-	return ds
+	return NewTestDatabaseService(ctx, testDatabaseURL)
 }
 
 func getUsersByUsername(t *testing.T, database *internal.DatabaseService, username string) []db.User {
 	t.Helper()
-	user, err := database.Queries().GetUserByUsername(t.Context(), username)
+	user, err := database.DB().GetUserByUsername(t.Context(), username)
 	if err != nil {
 		return []db.User{}
 	}
@@ -188,7 +183,7 @@ func getUsersByUsername(t *testing.T, database *internal.DatabaseService, userna
 
 func getTokensByUserID(t *testing.T, database *internal.DatabaseService, userID uuid.UUID) []db.UserToken {
 	t.Helper()
-	tokens, err := database.Queries().ListUserTokens(t.Context(), userID)
+	tokens, err := database.DB().ListUserTokens(t.Context(), userID)
 	if err != nil {
 		return []db.UserToken{}
 	}

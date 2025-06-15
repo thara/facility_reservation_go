@@ -30,7 +30,7 @@ type CreateUserResult struct {
 func (s *Service) CreateUser(ctx context.Context, params CreateUserParams) (*CreateUserResult, error) {
 	var result *CreateUserResult
 
-	err := s.db.Transaction(ctx, func(ctx context.Context, q *TxQueries) error {
+	err := s.dbService.DB().Transaction(ctx, func(ctx context.Context, q *TxQueries) error {
 		// Generate UUID v7 for user
 		userID := uuid.Must(uuid.NewV7())
 

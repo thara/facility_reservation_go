@@ -18,13 +18,7 @@ func TestNewDatabaseService(t *testing.T) {
 			t.Skip("Skipping integration test in short mode")
 		}
 
-		ds := setupTestDatabase(ctx, t)
-
-		// Verify queries interface is available
-		assert.NotNil(t, ds.Queries())
-
-		// Verify pool is available
-		assert.NotNil(t, ds.Pool())
+		setupTestDatabase(ctx, t)
 	})
 
 	t.Run("invalid database URL", func(t *testing.T) {

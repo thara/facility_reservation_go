@@ -1,0 +1,4 @@
+package internal
+
+var NewRDBWithStrategy = newRDBWithStrategy
+var NewDatabaseServiceWithStrategy = newDatabaseServiceWithStrategy
