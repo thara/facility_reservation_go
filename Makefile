@@ -43,6 +43,14 @@ migrate-down-test:
 migrate-version:
 	migrate -database "postgres://postgres:postgres@localhost:5432/facility_reservation_dev?sslmode=disable" -path migrations version
 
+.PHONY: schema-generate
+schema-generate:
+	./scripts/generate-schema.sh
+
+.PHONY: schema-check
+schema-check:
+	./scripts/check-schema.sh
+
 .PHONY: db-up
 db-up:
 	docker compose up -d postgres
@@ -70,7 +78,7 @@ db-test-up:
 	@echo "Test database is ready!"
 
 .PHONY: db-setup
-db-setup: db-up migrate-up sqlc-generate
+db-setup: db-up migrate-up schema-generate sqlc-generate
 
 .PHONY: test
 test:

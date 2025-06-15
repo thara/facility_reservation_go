@@ -2,7 +2,7 @@ version: "2"
 sql:
   - engine: "postgresql"
     queries: "_db/"
-    schema: "migrations/"
+    schema: "_db/schema.sql"
     gen:
       go:
         package: "db"
@@ -17,6 +17,7 @@ sql:
         emit_pointers_for_null_types: true
         emit_enum_valid_method: true
         emit_all_enum_values: true
+        omit_unused_structs: true
         overrides:
           - column: "*.created_at"
             go_type: "time.Time"

@@ -72,6 +72,12 @@ make migrate-down
 # Check current migration version
 make migrate-version
 
+# Generate schema.sql from current database state
+make schema-generate
+
+# Check if schema.sql is up-to-date
+make schema-check
+
 # Generate Go code from SQL queries
 make sqlc-generate
 ```
@@ -138,12 +144,13 @@ The API provides three main endpoint groups:
 
 1. **Database Migrations**: Create new migration files in `migrations/` directory
 2. **Apply Migrations**: Run `make migrate-up` to update database
-3. **SQL Queries**: Add/modify queries in `_db/query_*.sql`
-4. **Generate Code**: Run `make sqlc-generate` to regenerate database code (uses migration files for schema)
-5. **API Changes**: Modify `spec/main.tsp` if needed
-6. **Server Code**: Run `make ogen` to regenerate HTTP handlers
-7. **Business Logic**: Implement handlers in `internal/service.go` using generated database code
-8. **Testing**: Start server with `go run cmd/api-server/main.go`
+3. **Generate Schema**: Run `make schema-generate` to update `_db/schema.sql` from database
+4. **SQL Queries**: Add/modify queries in `_db/query_*.sql`
+5. **Generate Code**: Run `make sqlc-generate` to regenerate database code
+6. **API Changes**: Modify `spec/main.tsp` if needed
+7. **Server Code**: Run `make ogen` to regenerate HTTP handlers
+8. **Business Logic**: Implement handlers in `internal/service.go` using generated database code
+9. **Testing**: Start server with `go run cmd/api-server/main.go`
 
 ### Database Connection
 
@@ -203,9 +210,11 @@ Tests are organized using **external test packages** to enforce proper encapsula
 ### Important Notes
 
 - **Migration Files**: Database schema changes are managed through migration files in `migrations/` directory
-- **sqlc Schema Source**: sqlc reads schema directly from migration files (no separate schema.sql needed)
+- **Schema Generation**: `_db/schema.sql` is auto-generated from database using `make schema-generate`
+- **Schema Validation**: CI automatically checks that `_db/schema.sql` is up-to-date with migrations
+- **sqlc Schema Source**: sqlc reads schema from `_db/schema.sql` for type generation
 - **Type Safety**: sqlc generates type-safe Go structs and functions from SQL queries
-- **Auto-generated Code**: Never edit files in `api/` or `internal/db/` directories
+- **Auto-generated Code**: Never edit files in `api/`, `internal/db/`, or `_db/schema.sql` directories
 - **Migration Versioning**: golang-migrate tracks applied migrations and supports rollbacks
 - **Connection Pooling**: Uses pgx connection pool with configurable limits
 - **Graceful Shutdown**: Database connections are properly closed on server shutdown
