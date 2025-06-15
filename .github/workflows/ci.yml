@@ -71,8 +71,7 @@ jobs:
           sudo apt-get install -y postgresql-client
 
       - name: Run migrations
-        run: |
-          migrate -database "postgres://postgres:postgres@localhost:5432/facility_reservation_dev?sslmode=disable" -path migrations up
+        run: make migrate-up
 
       - name: Check schema is up-to-date
-        run: ./scripts/check-schema.sh
+        run: ./_scripts/check-schema.sh
