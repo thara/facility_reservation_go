@@ -75,28 +75,15 @@ graph TB
 
 ### Build Command Breakdown
 
-The `make build_dev` command executes these steps in order:
+The build pipeline executes these steps in order:
+1. Clean previous artifacts
+2. Format and lint code  
+3. Generate database code
+4. Generate API code
+5. Run tests
+6. Build binary
 
-```bash
-# 1. Clean previous artifacts
-make clean
-
-# 2. Format and lint code
-make fmt
-make lint
-
-# 3. Generate database code
-make sqlc-generate
-
-# 4. Generate API code
-make ogen  # includes: make tsp
-
-# 5. Run tests
-make test_all  # includes: test-short + test-integration
-
-# 6. Build binary
-go build -o ./bin/api-server ./cmd/api-server/
-```
+For complete build commands and workflow, see [Development Workflow](003-development-workflow.md).
 
 ### API Generation Track
 
@@ -127,9 +114,6 @@ sqlc generate
 - Features: Compile-time SQL validation, type-safe parameter binding
 
 **Step 2: Schema Migration** (development only)
-```bash
-atlas schema apply --env dev
-```
 - Input: `_db/schema.sql`
 - Output: Updated database schema
 - Features: Automatic migration generation, schema drift detection

@@ -54,19 +54,7 @@ Welcome to the documentation for the Facility Reservation System - a REST API se
 
 ## 🛠️ Development Quick Reference
 
-### Essential Commands
-```bash
-# Setup environment
-make db-setup              # Database + initial code generation
-
-# Development cycle  
-make build_dev              # Complete build: format, lint, generate, test, compile
-
-# Incremental development
-make ogen                   # Regenerate API code only
-make sqlc-generate          # Regenerate database code only
-make test-short             # Unit tests only
-```
+For complete development workflow, see [Development Workflow](design-docs/003-development-workflow.md).
 
 ### Key Files
 - `spec/main.tsp` - API specification (TypeSpec)
@@ -76,63 +64,22 @@ make test-short             # Unit tests only
 
 ## 📚 Documentation Principles
 
-### Architecture Decision Records (ADRs)
-- **One decision per ADR**: Each documents exactly one architectural choice
-- **Immutable**: Once accepted, ADRs are never changed (only superseded)
-- **Context-rich**: Include enough background for future readers to understand decisions
+This documentation follows a structured approach with clear ownership:
+- **ADRs**: Document architectural decisions with rationale
+- **Design Docs**: Detailed implementation patterns for complex systems  
+- **Architecture**: Comprehensive system overview using arc42 template
 
-### Design Documents  
-- **Complex systems only**: Document systems that need detailed explanation
-- **Living documents**: Updated as systems evolve
-- **Implementation-focused**: Provide concrete guidance for development
-
-### Arc42 Architecture
-- **Comprehensive overview**: Single source of truth for system architecture
-- **Stakeholder-focused**: Addresses concerns of different audiences
-- **Cross-referenced**: Links to relevant ADRs and design docs
-
-## 🔄 Documentation Workflow
-
-### Contributing to Documentation
-1. **ADRs**: Use template in [adr/README.md](adr/README.md) for new architectural decisions
-2. **Design Docs**: Use template in [design-docs/README.md](design-docs/README.md) for complex systems
-3. **Architecture**: Update [architecture.md](architecture.md) for system-wide changes
-
-### Keeping Docs Current
-- **ADRs**: Create new ADRs for significant architectural changes
-- **Design Docs**: Update existing docs as systems evolve  
-- **Architecture**: Maintain as single source of truth for overall system design
+For contributing guidelines, see individual README files in [adr/](adr/) and [design-docs/](design-docs/) directories.
 
 ## 🎯 System Overview
 
-The Facility Reservation System is built with a **schema-driven development** approach:
+The Facility Reservation System is built with a **schema-driven development** approach using TypeSpec for API specification, sqlc for database code generation, and Atlas for schema management.
 
-```mermaid
-graph LR
-    TypeSpec[TypeSpec API Spec] --> OpenAPI[OpenAPI Schema]
-    SQL[SQL Schema] --> DBCode[Go Database Code]
-    OpenAPI --> ServerCode[Go Server Code]
-    OpenAPI --> Clients[Multi-language Clients]
-    
-    ServerCode --> Service[Business Logic]
-    DBCode --> Service
-```
-
-**Key Characteristics:**
-- **Type Safety**: End-to-end type safety from database to API clients
-- **Code Generation**: Automated generation of HTTP handlers and database access code
-- **Contract-First**: API specification drives both server and client implementation
-- **Explicit Behavior**: All business logic visible in application code (no hidden database triggers)
+For complete system architecture and design decisions, see [Architecture Documentation](architecture.md).
 
 ## 🏷️ Technology Stack
 
-| Component | Technology | Purpose |
-|-----------|------------|---------|
-| **API Specification** | TypeSpec | Type-safe API definition |
-| **HTTP Server** | Go + ogen | Generated HTTP handlers |
-| **Database** | PostgreSQL + sqlc | Type-safe database access |
-| **Schema Management** | Atlas | Database migrations |
-| **Testing** | Go testing + external packages | Unit and integration tests |
+For detailed technology choices and architecture, see [Architecture Documentation](architecture.md).
 
 ---
 

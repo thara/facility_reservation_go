@@ -313,11 +313,13 @@ graph TB
     App --> DevDB
     Tools --> TestDB
     
-    Tools --> |"make build-dev"| Pipeline[Build Pipeline]
+    Tools --> Pipeline[Build Pipeline]
     Pipeline --> |"Atlas"| Schema[Schema Migration]
     Pipeline --> |"sqlc"| Queries[Query Generation]
     Pipeline --> |"ogen"| API[API Generation]
 ```
+
+For complete development workflow, see [Development Workflow](design-docs/003-development-workflow.md).
 
 **Infrastructure Components:**
 
@@ -591,17 +593,9 @@ WHERE id = $2
 | **pgx** | PostgreSQL driver and toolkit for Go |
 | **Connection Pool** | Reusable database connection management |
 
-### 12.3 Build System Terms
+### 12.3 Build System
 
-| Command | Purpose |
-|---------|---------|
-| **make build_dev** | Complete development build pipeline |
-| **make ogen** | Generate API handlers from TypeSpec |
-| **make sqlc-generate** | Generate database code from SQL |
-| **make atlas-apply** | Apply schema changes to database |
-| **make db-setup** | Setup complete database environment |
-
-For complete development workflows, see [Development Workflow](design-docs/003-development-workflow.md).
+For complete development commands and build system documentation, see [Development Workflow](design-docs/003-development-workflow.md).
 
 ---
 
