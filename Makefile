@@ -23,21 +23,25 @@ lint:
 sqlc-generate:
 	sqlc generate
 
-.PHONY: atlas-status
-atlas-status:
-	atlas schema inspect --env dev
+.PHONY: migrate-up
+migrate-up:
+	migrate -database "postgres://postgres:postgres@localhost:5432/facility_reservation_dev?sslmode=disable" -path migrations up
 
-.PHONY: atlas-apply
-atlas-apply:
-	atlas schema apply --env dev
+.PHONY: migrate-down
+migrate-down:
+	migrate -database "postgres://postgres:postgres@localhost:5432/facility_reservation_dev?sslmode=disable" -path migrations down
 
-.PHONY: atlas-apply-test
-atlas-apply-test:
-	atlas schema apply --env test --auto-approve || true
+.PHONY: migrate-up-test
+migrate-up-test:
+	migrate -database "postgres://postgres:postgres@localhost:5433/facility_reservation_test?sslmode=disable" -path migrations up
 
-.PHONY: atlas-diff
-atlas-diff:
-	atlas schema diff --env dev
+.PHONY: migrate-down-test
+migrate-down-test:
+	migrate -database "postgres://postgres:postgres@localhost:5433/facility_reservation_test?sslmode=disable" -path migrations down
+
+.PHONY: migrate-version
+migrate-version:
+	migrate -database "postgres://postgres:postgres@localhost:5432/facility_reservation_dev?sslmode=disable" -path migrations version
 
 .PHONY: db-up
 db-up:
@@ -66,7 +70,7 @@ db-test-up:
 	@echo "Test database is ready!"
 
 .PHONY: db-setup
-db-setup: db-up atlas-apply sqlc-generate
+db-setup: db-up migrate-up sqlc-generate
 
 .PHONY: test
 test:
@@ -77,7 +81,7 @@ test-short:
 	go test ./... -v -short
 
 .PHONY: test-integration
-test-integration: db-test-up atlas-apply-test
+test-integration: db-test-up migrate-up-test
 	TEST_DATABASE_URL="postgres://postgres:postgres@localhost:5433/facility_reservation_test?sslmode=disable" go test ./... -v
 
 .PHONY: test-all
@@ -89,7 +93,7 @@ build_dev: clean fmt lint sqlc-generate ogen test_all
 
 .PHONY: dev-deps
 dev-deps:
-	go install ariga.io/atlas/cmd/atlas@latest
+	go install -tags 'postgres' github.com/golang-migrate/migrate/v4/cmd/migrate@latest
 	go install github.com/sqlc-dev/sqlc/cmd/sqlc@latest
 
 .PHONY: actionlint

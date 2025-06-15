@@ -63,17 +63,17 @@ make db-setup
 
 ### Database Operations
 ```bash
-# Apply schema changes to database
-make atlas-apply
+# Apply migrations to database
+make migrate-up
+
+# Rollback migrations
+make migrate-down
+
+# Check current migration version
+make migrate-version
 
 # Generate Go code from SQL queries
 make sqlc-generate
-
-# Check current database schema status
-make atlas-status
-
-# Preview schema changes
-make atlas-diff
 ```
 
 ### Testing
@@ -90,7 +90,7 @@ make test-integration
 
 ### Development Tools Installation
 ```bash
-# Install development dependencies (Atlas, sqlc)
+# Install development dependencies (golang-migrate, sqlc)
 make dev-deps
 ```
 
@@ -123,7 +123,7 @@ This is a facility reservation API built with a **database-first** approach usin
 
 ### Database Tools
 
-- **Atlas**: Database schema-as-code tool for migrations and schema management
+- **golang-migrate**: Database migration tool for applying schema changes
 - **sqlc**: Generates type-safe Go code from SQL queries
 - **PostgreSQL**: Primary database with pgx driver for connection pooling
 
@@ -136,8 +136,8 @@ The API provides three main endpoint groups:
 
 ### Development Workflow
 
-1. **Database Schema**: Modify `_db/schema.sql` (declarative schema)
-2. **Apply Schema**: Run `make atlas-apply` to update database
+1. **Database Migrations**: Create new migration files in `migrations/` directory
+2. **Apply Migrations**: Run `make migrate-up` to update database
 3. **SQL Queries**: Add/modify queries in `_db/query_*.sql`
 4. **Generate Code**: Run `make sqlc-generate` to regenerate database code
 5. **API Changes**: Modify `spec/main.tsp` if needed
@@ -202,9 +202,9 @@ Tests are organized using **external test packages** to enforce proper encapsula
 
 ### Important Notes
 
-- **Schema as Code**: `_db/schema.sql` is the single source of truth for database structure
+- **Migration Files**: Database schema changes are managed through migration files in `migrations/` directory
 - **Type Safety**: sqlc generates type-safe Go structs and functions from SQL queries
 - **Auto-generated Code**: Never edit files in `api/` or `internal/db/` directories
-- **Atlas Migration**: Atlas automatically calculates and applies schema changes
+- **Migration Versioning**: golang-migrate tracks applied migrations and supports rollbacks
 - **Connection Pooling**: Uses pgx connection pool with configurable limits
 - **Graceful Shutdown**: Database connections are properly closed on server shutdown
