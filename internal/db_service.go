@@ -37,8 +37,6 @@ type PgxDBService struct {
 }
 
 // NewDBService creates a new database service with connection pool.
-//
-//nolint:ireturn // returns interface to enable implementation swapping
 func NewDBService(
 	ctx context.Context,
 	databaseURL string,

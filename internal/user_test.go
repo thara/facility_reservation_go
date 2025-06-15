@@ -163,7 +163,6 @@ func TestCreateUserTransactionRollback(t *testing.T) {
 
 // Helper functions for testing
 
-//nolint:ireturn // returns interface for test flexibility
 func setupTestDatabase(
 	ctx context.Context,
 	t *testing.T,

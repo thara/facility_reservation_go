@@ -99,7 +99,7 @@ linters:
 
     - exhaustruct # checks if all structure fields are initialized
     - interfacebloat # checks the number of methods inside an interface
-    - ireturn # accept interfaces, return concrete types
+    # - ireturn # accept interfaces, return concrete types
     - tagalign # checks that struct tags are well aligned
     - wrapcheck # checks that errors returned from external packages are wrapped
 
