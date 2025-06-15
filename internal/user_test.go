@@ -22,13 +22,19 @@ func TestCreateUser(t *testing.T) {
 
 	ds := internal.NewDataStore(db)
 
+	staffUser := &internal.AuthenticatedUser{
+		ID:       "staff-user-id",
+		Username: "staff-user",
+		IsStaff:  true,
+	}
+
 	t.Run("creates staff user successfully", func(t *testing.T) {
 		params := internal.CreateUserParams{
 			Username: gofakeit.Name(),
 			IsStaff:  true,
 		}
 
-		result, err := internal.CreateUser(ctx, ds, params)
+		result, err := internal.CreateUser(ctx, ds, staffUser, params)
 
 		require.NoError(t, err)
 		assert.NotNil(t, result)
@@ -57,7 +63,7 @@ func TestCreateUser(t *testing.T) {
 			IsStaff:  false,
 		}
 
-		result, err := internal.CreateUser(ctx, ds, params)
+		result, err := internal.CreateUser(ctx, ds, staffUser, params)
 
 		require.NoError(t, err)
 		assert.NotNil(t, result)
@@ -75,11 +81,11 @@ func TestCreateUser(t *testing.T) {
 			IsStaff:  false,
 		}
 
-		_, err := internal.CreateUser(ctx, ds, params)
+		_, err := internal.CreateUser(ctx, ds, staffUser, params)
 		require.NoError(t, err)
 
 		// Try to create user with same username
-		_, err = internal.CreateUser(ctx, ds, params)
+		_, err = internal.CreateUser(ctx, ds, staffUser, params)
 		require.Error(t, err)
 		assert.Contains(t, err.Error(), "failed to create user")
 	})
@@ -94,7 +100,7 @@ func TestCreateUser(t *testing.T) {
 				IsStaff:  false,
 			}
 
-			result, err := internal.CreateUser(ctx, ds, params)
+			result, err := internal.CreateUser(ctx, ds, staffUser, params)
 			require.NoError(t, err)
 
 			// Check token is unique
@@ -109,7 +115,7 @@ func TestCreateUser(t *testing.T) {
 			IsStaff:  false,
 		}
 
-		result, err := internal.CreateUser(ctx, ds, params)
+		result, err := internal.CreateUser(ctx, ds, staffUser, params)
 		require.NoError(t, err)
 
 		// Verify UUIDs are valid format
@@ -126,6 +132,38 @@ func TestCreateUser(t *testing.T) {
 		assert.Equal(t, '-', rune(userIDStr[18]))
 		assert.Equal(t, '-', rune(userIDStr[23]))
 	})
+
+	t.Run("fails when authenticated user is nil", func(t *testing.T) {
+		params := internal.CreateUserParams{
+			Username: gofakeit.Name(),
+			IsStaff:  false,
+		}
+
+		result, err := internal.CreateUser(ctx, ds, nil, params)
+
+		require.Error(t, err)
+		assert.Nil(t, result)
+		assert.Contains(t, err.Error(), "authenticated user is required")
+	})
+
+	t.Run("fails when authenticated user is not staff", func(t *testing.T) {
+		nonStaffUser := &internal.AuthenticatedUser{
+			ID:       "non-staff-user-id",
+			Username: "non-staff-user",
+			IsStaff:  false,
+		}
+
+		params := internal.CreateUserParams{
+			Username: gofakeit.Name(),
+			IsStaff:  false,
+		}
+
+		result, err := internal.CreateUser(ctx, ds, nonStaffUser, params)
+
+		require.Error(t, err)
+		assert.Nil(t, result)
+		assert.Contains(t, err.Error(), "only staff users can create new users")
+	})
 }
 
 func TestCreateUserTransactionRollback(t *testing.T) {
@@ -138,6 +176,12 @@ func TestCreateUserTransactionRollback(t *testing.T) {
 
 	ds := internal.NewDataStore(db)
 
+	staffUser := &internal.AuthenticatedUser{
+		ID:       "staff-user-id",
+		Username: "staff-user",
+		IsStaff:  true,
+	}
+
 	t.Run("transaction rolls back on token creation failure", func(t *testing.T) {
 		// This test is conceptual - in practice, token creation would rarely fail
 		// after user creation succeeds, but this demonstrates transaction behavior
@@ -148,7 +192,7 @@ func TestCreateUserTransactionRollback(t *testing.T) {
 		}
 
 		// Create user successfully
-		result, err := internal.CreateUser(ctx, ds, params)
+		result, err := internal.CreateUser(ctx, ds, staffUser, params)
 		require.NoError(t, err)
 
 		// Verify user was created

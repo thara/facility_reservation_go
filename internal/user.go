@@ -40,7 +40,20 @@ type CreateUserResult struct {
 }
 
 // CreateUser creates a new user with a secure token.
-func CreateUser(ctx context.Context, ds *DataStore, params CreateUserParams) (*CreateUserResult, error) {
+// Only staff users can create new users.
+func CreateUser(
+	ctx context.Context,
+	ds *DataStore,
+	user *AuthenticatedUser,
+	params CreateUserParams,
+) (*CreateUserResult, error) {
+	// Validate that the authenticated user is staff
+	if user == nil {
+		return nil, errors.New("authenticated user is required")
+	}
+	if !user.IsStaff {
+		return nil, errors.New("only staff users can create new users")
+	}
 	var result *CreateUserResult
 
 	err := ds.Transaction(ctx, func(ctx context.Context, tx *Transaction) error {

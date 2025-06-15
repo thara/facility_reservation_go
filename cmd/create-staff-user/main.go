@@ -75,7 +75,14 @@ func run(ctx context.Context) error {
 		IsStaff:  true,
 	}
 
-	result, err := internal.CreateUser(ctx, ds, params)
+	// Create staff user - system operation, bypassing normal auth
+	systemUser := &internal.AuthenticatedUser{
+		ID:       "system",
+		Username: "system",
+		IsStaff:  true,
+	}
+
+	result, err := internal.CreateUser(ctx, ds, systemUser, params)
 	if err != nil {
 		return fmt.Errorf("failed to create staff user: %w", err)
 	}
