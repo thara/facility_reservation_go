@@ -139,7 +139,7 @@ The API provides three main endpoint groups:
 1. **Database Migrations**: Create new migration files in `migrations/` directory
 2. **Apply Migrations**: Run `make migrate-up` to update database
 3. **SQL Queries**: Add/modify queries in `_db/query_*.sql`
-4. **Generate Code**: Run `make sqlc-generate` to regenerate database code
+4. **Generate Code**: Run `make sqlc-generate` to regenerate database code (uses migration files for schema)
 5. **API Changes**: Modify `spec/main.tsp` if needed
 6. **Server Code**: Run `make ogen` to regenerate HTTP handlers
 7. **Business Logic**: Implement handlers in `internal/service.go` using generated database code
@@ -203,6 +203,7 @@ Tests are organized using **external test packages** to enforce proper encapsula
 ### Important Notes
 
 - **Migration Files**: Database schema changes are managed through migration files in `migrations/` directory
+- **sqlc Schema Source**: sqlc reads schema directly from migration files (no separate schema.sql needed)
 - **Type Safety**: sqlc generates type-safe Go structs and functions from SQL queries
 - **Auto-generated Code**: Never edit files in `api/` or `internal/db/` directories
 - **Migration Versioning**: golang-migrate tracks applied migrations and supports rollbacks
