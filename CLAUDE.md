@@ -121,7 +121,7 @@ This is a facility reservation API built with a **database-first** approach usin
 - **`spec/main.tsp`**: TypeSpec API specification defining all endpoints, models, and operations
 - **`_db/schema.sql`**: Database schema (source of truth) used by both Atlas and sqlc
 - **`_db/query_*.sql`**: SQL queries for CRUD operations, compiled by sqlc to Go code
-- **`api/`**: Auto-generated Go server code (handlers, schemas, validators) - DO NOT EDIT manually
+- **`internal/api/`**: Auto-generated Go server code (handlers, schemas, validators) - DO NOT EDIT manually
 - **`internal/db/`**: Auto-generated Go database code from sqlc - DO NOT EDIT manually
 - **`internal/service.go`**: Business logic implementation with database integration
 - **`internal/database.go`**: Database service with connection pooling
@@ -214,7 +214,7 @@ Tests are organized using **external test packages** to enforce proper encapsula
 - **Schema Validation**: CI automatically checks that `_db/schema.sql` is up-to-date with migrations
 - **sqlc Schema Source**: sqlc reads schema from `_db/schema.sql` for type generation
 - **Type Safety**: sqlc generates type-safe Go structs and functions from SQL queries
-- **Auto-generated Code**: Never edit files in `api/`, `internal/db/`, or `_db/schema.sql` directories
+- **Auto-generated Code**: Never edit files in `internal/api/`, `internal/db/`, or `_db/schema.sql` directories
 - **Migration Versioning**: golang-migrate tracks applied migrations and supports rollbacks
 - **Connection Pooling**: Uses pgx connection pool with configurable limits
 - **Graceful Shutdown**: Database connections are properly closed on server shutdown
