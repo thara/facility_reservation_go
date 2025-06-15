@@ -13,6 +13,7 @@ import (
 
 	"github.com/thara/facility_reservation_go/api"
 	"github.com/thara/facility_reservation_go/internal"
+	"github.com/thara/facility_reservation_go/internal/middlewares"
 )
 
 const (
@@ -78,8 +79,8 @@ func run(ctx context.Context) error {
 	}
 
 	// Wrap handler with middleware (recovery first, then logging)
-	recoveredHandler := internal.RecoveryMiddleware(handler)
-	loggedHandler := internal.LoggingMiddleware(recoveredHandler)
+	recoveredHandler := middlewares.RecoveryMiddleware(handler)
+	loggedHandler := middlewares.LoggingMiddleware(recoveredHandler)
 
 	server := &http.Server{
 		Addr:              addr,
