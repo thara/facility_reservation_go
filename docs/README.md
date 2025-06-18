@@ -60,7 +60,7 @@ For complete development workflow, see [Development Workflow](design-docs/003-de
 - `spec/main.tsp` - API specification (TypeSpec)
 - `_db/schema.sql` - Database schema (source of truth)
 - `_db/query_*.sql` - SQL queries for code generation
-- `internal/service.go` - Business logic implementation
+- `internal/api_service.go` - Business logic implementation
 
 ## 📚 Documentation Principles
 

@@ -52,7 +52,7 @@ graph TB
     end
     
     subgraph "Implementation"
-        Business[Implement business logic<br/>internal/service.go]
+        Business[Implement business logic<br/>internal/api_service.go]
         Tests[Write/update tests<br/>*_test.go]
     end
     
@@ -109,7 +109,7 @@ make ogen  # Regenerate API handlers
 
 **Step 3: Implement Business Logic**
 ```go
-// internal/service.go
+// internal/api_service.go
 func (s *Service) FacilitiesBookingsList(ctx context.Context, req api.FacilitiesBookingsListRequest) (api.FacilitiesBookingsListResponse, error) {
     // Implementation using generated database queries
     bookings, err := s.db.Queries().ListFacilityBookings(ctx, s.db.Pool(), req.ID)
@@ -215,7 +215,7 @@ func TestFacilitiesRetrieve_NotFound(t *testing.T) {
 
 **Step 3: Fix Implementation**
 ```go
-// internal/service.go
+// internal/api_service.go
 func (s *Service) FacilitiesRetrieve(ctx context.Context, req api.FacilitiesRetrieveRequest) (api.FacilitiesRetrieveResponse, error) {
     facility, err := s.db.Queries().GetFacilityByID(ctx, s.db.Pool(), req.ID)
     if err != nil {

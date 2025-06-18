@@ -67,7 +67,7 @@ The API provides three main endpoint groups:
 4. **Generate Code**: `make sqlc-generate`
 5. **API Changes**: Modify `spec/main.tsp`
 6. **Update Server**: `make ogen`
-7. **Implement Logic**: Update `internal/service.go`
+7. **Implement Logic**: Update `internal/api_service.go`
 8. **Test**: `make build_dev`
 
 ## Key Commands
@@ -112,8 +112,8 @@ _db/                    # Database schema and queries
 api/                   # Auto-generated HTTP server code
 internal/
 ├── db/               # Auto-generated database code
-├── service.go        # Business logic implementation
-└── database.go       # Database service
+├── api_service.go        # Business logic implementation
+└── db_service.go       # Database service
 spec/
 └── main.tsp          # TypeSpec API specification
 cmd/api-server/       # Server entry point
