@@ -2,12 +2,17 @@ package internal_test
 
 import (
 	"context"
+	"errors"
 	"testing"
 	"time"
 
+	"github.com/brianvoe/gofakeit/v7"
+	"github.com/google/uuid"
+	"github.com/jackc/pgx/v5"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"github.com/thara/facility_reservation_go/internal"
+	"github.com/thara/facility_reservation_go/internal/db"
 )
 
 func TestNewDBService(t *testing.T) {
@@ -142,4 +147,35 @@ func TestDatabaseService_Integration(t *testing.T) {
 			assert.NoError(t, err)
 		}
 	})
+}
+
+func TestDatabaseService_Transaction_Rollback(t *testing.T) {
+	if testing.Short() {
+		t.Skip("Skipping integration test in short mode")
+	}
+
+	ctx := t.Context()
+	ds := setupTestDatabase(ctx, t)
+	store := internal.NewDataStore(ds)
+
+	userID := uuid.Must(uuid.NewV7())
+	username := gofakeit.Name()
+	intentionalErr := errors.New("intentional failure")
+
+	err := ds.Transaction(ctx, func(ctx context.Context, tx *internal.Transaction) error {
+		_, err := tx.CreateUser(ctx, db.CreateUserParams{
+			ID:       userID,
+			Username: username,
+			IsStaff:  false,
+		})
+		require.NoError(t, err)
+
+		return intentionalErr
+	})
+
+	require.ErrorIs(t, err, intentionalErr)
+
+	_, err = store.GetUserByID(ctx, userID)
+	assert.Error(t, err)
+	assert.ErrorIs(t, err, pgx.ErrNoRows)
 }
