@@ -9,20 +9,35 @@ import (
 	"github.com/thara/facility_reservation_go/internal/middlewares"
 )
 
-func TestRecoveryMiddleware_Panic(t *testing.T) {
-	// Handler that panics when invoked
-	panicHandler := http.HandlerFunc(func(http.ResponseWriter, *http.Request) {
-		panic("unexpected error")
+func TestRecoveryMiddleware(t *testing.T) {
+	t.Run("panic recovers with 500", func(t *testing.T) {
+		panicHandler := http.HandlerFunc(func(http.ResponseWriter, *http.Request) {
+			panic("unexpected error")
+		})
+
+		handler := middlewares.RecoveryMiddleware(panicHandler)
+
+		req := httptest.NewRequest(http.MethodGet, "/panic", nil)
+		w := httptest.NewRecorder()
+
+		handler.ServeHTTP(w, req)
+
+		assert.Equal(t, http.StatusInternalServerError, w.Code)
+		assert.Contains(t, w.Body.String(), "Internal Server Error")
 	})
 
-	handler := middlewares.RecoveryMiddleware(panicHandler)
+	t.Run("no panic passes through", func(t *testing.T) {
+		okHandler := http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+			w.WriteHeader(http.StatusTeapot)
+		})
 
-	req := httptest.NewRequest(http.MethodGet, "/panic", nil)
-	w := httptest.NewRecorder()
+		handler := middlewares.RecoveryMiddleware(okHandler)
 
-	// Execute the request; the middleware should recover the panic
-	handler.ServeHTTP(w, req)
+		req := httptest.NewRequest(http.MethodGet, "/ok", nil)
+		w := httptest.NewRecorder()
 
-	assert.Equal(t, http.StatusInternalServerError, w.Code)
-	assert.Contains(t, w.Body.String(), "Internal Server Error")
+		handler.ServeHTTP(w, req)
+
+		assert.Equal(t, http.StatusTeapot, w.Code)
+	})
 }
