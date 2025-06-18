@@ -373,7 +373,7 @@ graph TB
     SQL[SQL Schema<br/>_db/schema.sql] --> |sqlc| DB[Database Layer<br/>internal/db/*.go]
     SQL --> |Atlas| Migration[Schema Migration]
     
-    API --> Service[Service Layer<br/>internal/service.go]
+    API --> Service[Service Layer<br/>internal/api_service.go]
     DB --> Service
 ```
 

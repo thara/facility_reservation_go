@@ -123,8 +123,8 @@ This is a facility reservation API built with a **database-first** approach usin
 - **`_db/query_*.sql`**: SQL queries for CRUD operations, compiled by sqlc to Go code
 - **`internal/api/`**: Auto-generated Go server code (handlers, schemas, validators) - DO NOT EDIT manually
 - **`internal/db/`**: Auto-generated Go database code from sqlc - DO NOT EDIT manually
-- **`internal/service.go`**: Business logic implementation with database integration
-- **`internal/database.go`**: Database service with connection pooling
+- **`internal/api_service.go`**: Business logic implementation with database integration
+- **`internal/db_service.go`**: Database service with connection pooling
 - **`cmd/api-server/main.go`**: HTTP server entry point with database initialization
 
 ### Database Tools
@@ -149,7 +149,7 @@ The API provides three main endpoint groups:
 5. **Generate Code**: Run `make sqlc-generate` to regenerate database code
 6. **API Changes**: Modify `spec/main.tsp` if needed
 7. **Server Code**: Run `make ogen` to regenerate HTTP handlers
-8. **Business Logic**: Implement handlers in `internal/service.go` using generated database code
+8. **Business Logic**: Implement handlers in `internal/api_service.go` using generated database code
 9. **Testing**: Start server with `go run cmd/api-server/main.go`
 
 ### Database Connection

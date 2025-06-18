@@ -46,7 +46,7 @@ graph TB
     subgraph "Server Side (This Repository)"
         Ogen[ogen generator]
         GoServer[Go HTTP Server<br/>api/*.go]
-        Service[Business Logic<br/>internal/service.go]
+        Service[Business Logic<br/>internal/api_service.go]
     end
     
     subgraph "Client Side (External)"
@@ -154,7 +154,7 @@ type Handler interface {
     // ... other endpoints
 }
 
-// Business logic implementation (internal/service.go)
+// Business logic implementation (internal/api_service.go)
 type Service struct {
     api.UnimplementedHandler  // Embed generated interface
     db *DatabaseService       // Database access

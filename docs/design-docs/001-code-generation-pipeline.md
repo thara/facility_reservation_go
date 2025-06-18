@@ -53,7 +53,7 @@ graph TB
     end
     
     subgraph "Application"
-        Service[internal/service.go<br/>Business Logic]
+        Service[internal/api_service.go<br/>Business Logic]
         Binary[bin/api-server<br/>Compiled Binary]
     end
     
@@ -122,7 +122,7 @@ sqlc generate
 
 **Service Layer Integration**
 ```go
-// internal/service.go connects generated code
+// internal/api_service.go connects generated code
 type Service struct {
     api.UnimplementedHandler  // Generated API interface
     db *DatabaseService       // Generated database queries
