@@ -2,10 +2,12 @@ package internal
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"log/slog"
 	"time"
 
+	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/thara/facility_reservation_go/internal/db"
 )
@@ -93,8 +95,12 @@ func (ds *PgxDBService) Transaction(ctx context.Context, fn TransactionFunc) err
 		return fmt.Errorf("failed to begin transaction: %w", err)
 	}
 
+	committed := false
 	defer func() {
-		if rollbackErr := tx.Rollback(ctx); rollbackErr != nil {
+		if committed {
+			return
+		}
+		if rollbackErr := tx.Rollback(ctx); rollbackErr != nil && !errors.Is(rollbackErr, pgx.ErrTxClosed) {
 			slog.ErrorContext(ctx, "Failed to rollback transaction", "error", rollbackErr)
 		}
 	}()
@@ -107,6 +113,7 @@ func (ds *PgxDBService) Transaction(ctx context.Context, fn TransactionFunc) err
 	if err := tx.Commit(ctx); err != nil {
 		return fmt.Errorf("failed to commit transaction: %w", err)
 	}
+	committed = true
 
 	return nil
 }
