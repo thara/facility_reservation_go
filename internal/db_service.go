@@ -72,7 +72,7 @@ func NewDBService(
 }
 
 // Queries returns the sqlc-generated query interface.
-func (ds *PgxDBService) Queries() db.Querier { //nolint:ireturn // returns interface to encupsulate implementation details
+func (ds *PgxDBService) Queries() db.Querier { //nolint:ireturn // returns interface to encapsulate implementation details
 	return ds.queries
 }
 
