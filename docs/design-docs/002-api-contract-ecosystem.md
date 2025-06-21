@@ -1,3 +1,10 @@
+---
+layout: default
+title: API Contract Ecosystem
+parent: Design Documents
+nav_order: 2
+---
+
 # 2. API Contract Ecosystem
 
 **Author**: System Architecture Team  

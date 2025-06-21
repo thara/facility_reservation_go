@@ -1,3 +1,10 @@
+---
+layout: default
+title: Code Generation Pipeline
+parent: Design Documents
+nav_order: 1
+---
+
 # 1. Code Generation Pipeline
 
 **Author**: System Architecture Team  

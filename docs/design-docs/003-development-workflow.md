@@ -1,3 +1,10 @@
+---
+layout: default
+title: Development Workflow
+parent: Design Documents
+nav_order: 3
+---
+
 # 3. Development Workflow
 
 **Author**: System Architecture Team  

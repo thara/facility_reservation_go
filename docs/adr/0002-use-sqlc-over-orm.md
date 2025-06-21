@@ -1,3 +1,10 @@
+---
+layout: default
+parent: Architecture Decision Records
+nav_order: 2
+title: "2. Use sqlc over ORM"
+---
+
 # 2. Use sqlc over ORM
 
 Date: 2025-06-14

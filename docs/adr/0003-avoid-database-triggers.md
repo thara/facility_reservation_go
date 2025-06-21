@@ -1,3 +1,10 @@
+---
+layout: default
+parent: Architecture Decision Records
+nav_order: 3
+title: "3. Avoid Database Triggers"
+---
+
 # 3. Avoid Database Triggers
 
 Date: 2025-06-14
