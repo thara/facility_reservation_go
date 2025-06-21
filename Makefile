@@ -76,7 +76,10 @@ test-short:
 	go test ./... -v -short
 
 .PHONY: test-integration
-test-integration: db-up migrate-up
+test-integration:
+	@if [ -z "$$CI" ]; then \
+		$(MAKE) db-up migrate-up; \
+	fi
 	TEST_DATABASE_URL="postgres://postgres:postgres@localhost:5432/facility_reservation_dev?sslmode=disable" go test ./... -v
 
 .PHONY: test-all
