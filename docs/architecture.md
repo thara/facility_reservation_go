@@ -1,3 +1,11 @@
+---
+layout: default
+title: Architecture
+nav_order: 3
+has_children: false
+permalink: /architecture
+---
+
 # Architecture Documentation
 
 **Facility Reservation System**

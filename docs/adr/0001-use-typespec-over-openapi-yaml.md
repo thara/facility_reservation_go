@@ -1,3 +1,10 @@
+---
+layout: default
+parent: Architecture Decision Records
+nav_order: 1
+title: "1. Use TypeSpec over OpenAPI YAML"
+---
+
 # 1. Use TypeSpec over OpenAPI YAML
 
 Date: 2025-06-14
