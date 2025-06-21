@@ -113,7 +113,11 @@ func generateToken() string {
 }
 
 // GetAuthenticatedUser validates the token and returns the authenticated user.
-func GetAuthenticatedUser(ctx context.Context, querier UserTokenQuerier, token string) (user *AuthenticatedUser, err error) {
+func GetAuthenticatedUser(
+	ctx context.Context,
+	querier UserTokenQuerier,
+	token string,
+) (user *AuthenticatedUser, err error) {
 	defer derrors.Wrap(&err, "GetAuthenticatedUser(ctx, querier, token)")
 	if querier == nil {
 		return nil, errors.New("querier is nil")

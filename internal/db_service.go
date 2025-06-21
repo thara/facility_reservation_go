@@ -92,7 +92,7 @@ func (ds *PgxDBService) Close() {
 // Transaction executes a function within a database transaction.
 func (ds *PgxDBService) Transaction(ctx context.Context, fn TransactionFunc) (err error) {
 	defer derrors.Wrap(&err, "Transaction(ctx, fn)")
-	
+
 	tx, txErr := ds.pool.Begin(ctx)
 	if txErr != nil {
 		return fmt.Errorf("failed to begin transaction: %w", txErr)
