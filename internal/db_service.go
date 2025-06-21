@@ -10,6 +10,7 @@ import (
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/thara/facility_reservation_go/internal/db"
+	"github.com/thara/facility_reservation_go/internal/derrors"
 )
 
 const (
@@ -89,10 +90,12 @@ func (ds *PgxDBService) Close() {
 }
 
 // Transaction executes a function within a database transaction.
-func (ds *PgxDBService) Transaction(ctx context.Context, fn TransactionFunc) error {
-	tx, err := ds.pool.Begin(ctx)
-	if err != nil {
-		return fmt.Errorf("failed to begin transaction: %w", err)
+func (ds *PgxDBService) Transaction(ctx context.Context, fn TransactionFunc) (err error) {
+	defer derrors.Wrap(&err, "Transaction(ctx, fn)")
+
+	tx, txErr := ds.pool.Begin(ctx)
+	if txErr != nil {
+		return fmt.Errorf("failed to begin transaction: %w", txErr)
 	}
 
 	committed := false
@@ -106,11 +109,11 @@ func (ds *PgxDBService) Transaction(ctx context.Context, fn TransactionFunc) err
 	}()
 
 	q := &Transaction{db.New(tx)}
-	if err := fn(ctx, q); err != nil {
+	if err = fn(ctx, q); err != nil {
 		return err
 	}
 
-	if err := tx.Commit(ctx); err != nil {
+	if err = tx.Commit(ctx); err != nil {
 		return fmt.Errorf("failed to commit transaction: %w", err)
 	}
 	committed = true
