@@ -176,6 +176,6 @@ func TestDatabaseService_Transaction_Rollback(t *testing.T) {
 	require.ErrorIs(t, err, intentionalErr)
 
 	_, err = store.GetUserByID(ctx, userID)
-	assert.Error(t, err)
+	require.Error(t, err)
 	assert.ErrorIs(t, err, pgx.ErrNoRows)
 }
