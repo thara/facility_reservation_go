@@ -213,7 +213,7 @@ func setupTestDatabase(
 ) internal.DBService {
 	t.Helper()
 
-	testDatabaseURL := "postgres://postgres:postgres@localhost:5433/facility_reservation_test?sslmode=disable"
+	testDatabaseURL := "postgres://postgres:postgres@localhost:5432/facility_reservation_db?sslmode=disable"
 
 	ds, err := internal.NewDBService(ctx, testDatabaseURL)
 	if err != nil {

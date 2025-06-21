@@ -5,7 +5,7 @@
 
 set -e
 
-DATABASE_URL="${DATABASE_URL:-postgres://postgres:postgres@localhost:5432/facility_reservation_dev?sslmode=disable}"
+DATABASE_URL="${DATABASE_URL:-postgres://postgres:postgres@localhost:5432/facility_reservation_db?sslmode=disable}"
 
 echo "Checking if schema.sql is up-to-date..."
 
@@ -23,7 +23,7 @@ else
         --schema-only \
         --no-owner \
         --no-privileges \
-        facility_reservation_dev | \
+        facility_reservation_db | \
         grep -v -E "^-- Dumped (from database version|by pg_dump version)" > "$temp_schema"
 fi
 

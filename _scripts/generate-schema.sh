@@ -12,7 +12,7 @@ docker compose exec -u postgres postgres pg_dump \
     --schema-only \
     --no-owner \
     --no-privileges \
-    facility_reservation_dev | \
+    facility_reservation_db | \
     grep -v -E "^-- Dumped (from database version|by pg_dump version)" > _db/schema.sql
 
 echo "Schema generated successfully at _db/schema.sql"

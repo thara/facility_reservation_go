@@ -155,8 +155,8 @@ The API provides three main endpoint groups:
 ### Database Connection
 
 The application uses PostgreSQL with Docker Compose for local development:
-- **Development DB**: `postgres://postgres:postgres@localhost:5432/facility_reservation_dev?sslmode=disable`
-- **Test DB**: `postgres://postgres:postgres@localhost:5433/facility_reservation_test?sslmode=disable`
+- **Development DB**: `postgres://postgres:postgres@localhost:5432/facility_reservation_db?sslmode=disable`
+- **Test DB**: `postgres://postgres:postgres@localhost:5433/facility_reservation_db?sslmode=disable`
 - **Environment**: Set `DATABASE_URL` environment variable to override
 - **CLI Flag**: Use `-database-url` command line argument
 
