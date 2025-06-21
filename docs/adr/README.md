@@ -1,3 +1,11 @@
+---
+layout: default
+title: Architecture Decision Records
+nav_order: 4
+has_children: true
+permalink: /adr
+---
+
 # Architecture Decision Records (ADRs)
 
 This directory contains Architecture Decision Records for the Facility Reservation System.

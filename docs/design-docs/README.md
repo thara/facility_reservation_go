@@ -1,3 +1,11 @@
+---
+layout: default
+title: Design Documents
+nav_order: 5
+has_children: true
+permalink: /design-docs
+---
+
 # Design Documents
 
 This directory contains design documents for complex systems and workflows in the Facility Reservation System.

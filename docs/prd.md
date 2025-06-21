@@ -1,3 +1,11 @@
+---
+layout: default
+title: Product Requirements
+nav_order: 2
+has_children: false
+permalink: /prd
+---
+
 # Product Requirement Document: Facility Reservation System
 
 **Version**: 1.0  

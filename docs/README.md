@@ -1,3 +1,11 @@
+---
+layout: home
+title: Home
+nav_order: 1
+description: "Facility Reservation System - REST API documentation"
+permalink: /
+---
+
 # Facility Reservation System Documentation
 
 Welcome to the documentation for the Facility Reservation System - a REST API service for managing facility bookings and user administration.
