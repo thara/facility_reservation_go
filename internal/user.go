@@ -9,6 +9,7 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/thara/facility_reservation_go/internal/db"
+	"github.com/thara/facility_reservation_go/internal/derrors"
 )
 
 const (
@@ -46,7 +47,8 @@ func CreateUser(
 	ds *DataStore,
 	user *AuthenticatedUser,
 	params CreateUserParams,
-) (*CreateUserResult, error) {
+) (result *CreateUserResult, err error) {
+	defer derrors.Wrap(&err, "CreateUser(ctx, ds, user, params)")
 	// Validate that the authenticated user is staff
 	if user == nil {
 		return nil, errors.New("authenticated user is required")
@@ -54,9 +56,8 @@ func CreateUser(
 	if !user.IsStaff {
 		return nil, errors.New("only staff users can create new users")
 	}
-	var result *CreateUserResult
 
-	err := ds.Transaction(ctx, func(ctx context.Context, tx *Transaction) error {
+	err = ds.Transaction(ctx, func(ctx context.Context, tx *Transaction) error {
 		// Generate UUID v7 for user
 		userID := uuid.Must(uuid.NewV7())
 
@@ -112,7 +113,8 @@ func generateToken() string {
 }
 
 // GetAuthenticatedUser validates the token and returns the authenticated user.
-func GetAuthenticatedUser(ctx context.Context, querier UserTokenQuerier, token string) (*AuthenticatedUser, error) {
+func GetAuthenticatedUser(ctx context.Context, querier UserTokenQuerier, token string) (user *AuthenticatedUser, err error) {
+	defer derrors.Wrap(&err, "GetAuthenticatedUser(ctx, querier, token)")
 	if querier == nil {
 		return nil, errors.New("querier is nil")
 	}
@@ -125,7 +127,7 @@ func GetAuthenticatedUser(ctx context.Context, querier UserTokenQuerier, token s
 	}
 
 	// Convert database row to our AuthenticatedUser type
-	user := &AuthenticatedUser{
+	user = &AuthenticatedUser{
 		ID:       userRow.ID.String(),
 		Username: userRow.Username,
 		IsStaff:  userRow.IsStaff,
