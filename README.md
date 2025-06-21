@@ -98,8 +98,8 @@ make tsp           # Generate TypeSpec schema only
 
 ## Database Configuration
 
-- **Development**: `postgres://postgres:postgres@localhost:5432/facility_reservation_dev?sslmode=disable`
-- **Test**: `postgres://postgres:postgres@localhost:5433/facility_reservation_test?sslmode=disable`
+- **Development**: `postgres://postgres:postgres@localhost:5432/facility_reservation_db?sslmode=disable`
+- **Test**: `postgres://postgres:postgres@localhost:5433/facility_reservation_db?sslmode=disable`
 - **Custom**: Set `DATABASE_URL` environment variable or use `-database-url` flag
 
 ## Project Structure

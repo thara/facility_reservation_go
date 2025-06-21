@@ -25,7 +25,7 @@ func init() {
 	if databaseURL == "" {
 		databaseURL = os.Getenv("DATABASE_URL")
 		if databaseURL == "" {
-			databaseURL = "postgres://postgres:postgres@localhost:5432/facility_reservation_dev?sslmode=disable"
+			databaseURL = "postgres://postgres:postgres@localhost:5432/facility_reservation_db?sslmode=disable"
 		}
 	}
 

@@ -25,16 +25,16 @@ sqlc-generate:
 
 .PHONY: migrate-up
 migrate-up:
-	migrate -database "postgres://postgres:postgres@localhost:5432/facility_reservation_dev?sslmode=disable" -path _migrations up
+	migrate -database "postgres://postgres:postgres@localhost:5432/facility_reservation_db?sslmode=disable" -path _migrations up
 
 .PHONY: migrate-down
 migrate-down:
-	migrate -database "postgres://postgres:postgres@localhost:5432/facility_reservation_dev?sslmode=disable" -path _migrations down
+	migrate -database "postgres://postgres:postgres@localhost:5432/facility_reservation_db?sslmode=disable" -path _migrations down
 
 
 .PHONY: migrate-version
 migrate-version:
-	migrate -database "postgres://postgres:postgres@localhost:5432/facility_reservation_dev?sslmode=disable" -path _migrations version
+	migrate -database "postgres://postgres:postgres@localhost:5432/facility_reservation_db?sslmode=disable" -path _migrations version
 
 .PHONY: schema-generate
 schema-generate:
@@ -80,7 +80,7 @@ test-integration:
 	@if [ -z "$$CI" ]; then \
 		$(MAKE) db-up migrate-up; \
 	fi
-	TEST_DATABASE_URL="postgres://postgres:postgres@localhost:5432/facility_reservation_dev?sslmode=disable" go test ./... -v
+	TEST_DATABASE_URL="postgres://postgres:postgres@localhost:5432/facility_reservation_db?sslmode=disable" go test ./... -v
 
 .PHONY: test-all
 test_all: test-short test-integration
