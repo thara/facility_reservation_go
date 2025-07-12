@@ -20,7 +20,7 @@ model UnexpectedError {
 
 model ProblemDetails {
   @header("content-type")
-  contentType: "application/problem+json" | "application/json";
+  contentType: "application/problem+json";
 
   /**
    * A URI reference [RFC3986] that identifies the problem type.
@@ -321,7 +321,7 @@ op facilities_partial_update(
   @path id: integer,
 
   @header
-  contentType: "application/merge-patch+json" | "application/json",
+  contentType: "application/merge-patch+json",
 
   @body body: MergePatchUpdate<PublicFacility>,
 ):

@@ -13,6 +13,10 @@ type AdminUsersListRes interface {
 	adminUsersListRes()
 }
 
+type AdminUsersPartialUpdateRes interface {
+	adminUsersPartialUpdateRes()
+}
+
 type AdminUsersRetrieveRes interface {
 	adminUsersRetrieveRes()
 }

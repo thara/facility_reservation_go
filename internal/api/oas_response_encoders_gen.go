@@ -36,7 +36,7 @@ func encodeAdminUsersCreateResponse(response AdminUsersCreateRes, w http.Respons
 		return nil
 
 	case *AdminUsersCreateBadRequest:
-		w.Header().Set("Content-Type", "application/json; charset=utf-8")
+		w.Header().Set("Content-Type", "application/problem+json")
 		w.WriteHeader(400)
 
 		e := new(jx.Encoder)
@@ -48,7 +48,7 @@ func encodeAdminUsersCreateResponse(response AdminUsersCreateRes, w http.Respons
 		return nil
 
 	case *AdminUsersCreateNotFound:
-		w.Header().Set("Content-Type", "application/json; charset=utf-8")
+		w.Header().Set("Content-Type", "application/problem+json")
 		w.WriteHeader(404)
 
 		e := new(jx.Encoder)
@@ -72,7 +72,7 @@ func encodeAdminUsersDestroyResponse(response AdminUsersDestroyRes, w http.Respo
 		return nil
 
 	case *AdminUsersDestroyBadRequest:
-		w.Header().Set("Content-Type", "application/json; charset=utf-8")
+		w.Header().Set("Content-Type", "application/problem+json")
 		w.WriteHeader(400)
 
 		e := new(jx.Encoder)
@@ -84,7 +84,7 @@ func encodeAdminUsersDestroyResponse(response AdminUsersDestroyRes, w http.Respo
 		return nil
 
 	case *AdminUsersDestroyUnauthorized:
-		w.Header().Set("Content-Type", "application/json; charset=utf-8")
+		w.Header().Set("Content-Type", "application/problem+json")
 		w.WriteHeader(401)
 
 		e := new(jx.Encoder)
@@ -96,7 +96,7 @@ func encodeAdminUsersDestroyResponse(response AdminUsersDestroyRes, w http.Respo
 		return nil
 
 	case *AdminUsersDestroyForbidden:
-		w.Header().Set("Content-Type", "application/json; charset=utf-8")
+		w.Header().Set("Content-Type", "application/problem+json")
 		w.WriteHeader(403)
 
 		e := new(jx.Encoder)
@@ -108,7 +108,7 @@ func encodeAdminUsersDestroyResponse(response AdminUsersDestroyRes, w http.Respo
 		return nil
 
 	case *AdminUsersDestroyNotFound:
-		w.Header().Set("Content-Type", "application/json; charset=utf-8")
+		w.Header().Set("Content-Type", "application/problem+json")
 		w.WriteHeader(404)
 
 		e := new(jx.Encoder)
@@ -147,7 +147,7 @@ func encodeAdminUsersListResponse(response AdminUsersListRes, w http.ResponseWri
 		return nil
 
 	case *AdminUsersListUnauthorized:
-		w.Header().Set("Content-Type", "application/json; charset=utf-8")
+		w.Header().Set("Content-Type", "application/problem+json")
 		w.WriteHeader(401)
 
 		e := new(jx.Encoder)
@@ -159,8 +159,83 @@ func encodeAdminUsersListResponse(response AdminUsersListRes, w http.ResponseWri
 		return nil
 
 	case *AdminUsersListForbidden:
-		w.Header().Set("Content-Type", "application/json; charset=utf-8")
+		w.Header().Set("Content-Type", "application/problem+json")
 		w.WriteHeader(403)
+
+		e := new(jx.Encoder)
+		response.Encode(e)
+		if _, err := e.WriteTo(w); err != nil {
+			return errors.Wrap(err, "write")
+		}
+
+		return nil
+
+	default:
+		return errors.Errorf("unexpected response type: %T", response)
+	}
+}
+
+func encodeAdminUsersPartialUpdateResponse(response AdminUsersPartialUpdateRes, w http.ResponseWriter) error {
+	switch response := response.(type) {
+	case *AdminUser:
+		if err := func() error {
+			if err := response.Validate(); err != nil {
+				return err
+			}
+			return nil
+		}(); err != nil {
+			return errors.Wrap(err, "validate")
+		}
+		w.Header().Set("Content-Type", "application/json; charset=utf-8")
+		w.WriteHeader(200)
+
+		e := new(jx.Encoder)
+		response.Encode(e)
+		if _, err := e.WriteTo(w); err != nil {
+			return errors.Wrap(err, "write")
+		}
+
+		return nil
+
+	case *AdminUsersPartialUpdateBadRequest:
+		w.Header().Set("Content-Type", "application/problem+json")
+		w.WriteHeader(400)
+
+		e := new(jx.Encoder)
+		response.Encode(e)
+		if _, err := e.WriteTo(w); err != nil {
+			return errors.Wrap(err, "write")
+		}
+
+		return nil
+
+	case *AdminUsersPartialUpdateUnauthorized:
+		w.Header().Set("Content-Type", "application/problem+json")
+		w.WriteHeader(401)
+
+		e := new(jx.Encoder)
+		response.Encode(e)
+		if _, err := e.WriteTo(w); err != nil {
+			return errors.Wrap(err, "write")
+		}
+
+		return nil
+
+	case *AdminUsersPartialUpdateForbidden:
+		w.Header().Set("Content-Type", "application/problem+json")
+		w.WriteHeader(403)
+
+		e := new(jx.Encoder)
+		response.Encode(e)
+		if _, err := e.WriteTo(w); err != nil {
+			return errors.Wrap(err, "write")
+		}
+
+		return nil
+
+	case *AdminUsersPartialUpdateNotFound:
+		w.Header().Set("Content-Type", "application/problem+json")
+		w.WriteHeader(404)
 
 		e := new(jx.Encoder)
 		response.Encode(e)
@@ -198,7 +273,7 @@ func encodeAdminUsersRetrieveResponse(response AdminUsersRetrieveRes, w http.Res
 		return nil
 
 	case *AdminUsersRetrieveUnauthorized:
-		w.Header().Set("Content-Type", "application/json; charset=utf-8")
+		w.Header().Set("Content-Type", "application/problem+json")
 		w.WriteHeader(401)
 
 		e := new(jx.Encoder)
@@ -210,7 +285,7 @@ func encodeAdminUsersRetrieveResponse(response AdminUsersRetrieveRes, w http.Res
 		return nil
 
 	case *AdminUsersRetrieveForbidden:
-		w.Header().Set("Content-Type", "application/json; charset=utf-8")
+		w.Header().Set("Content-Type", "application/problem+json")
 		w.WriteHeader(403)
 
 		e := new(jx.Encoder)
@@ -222,7 +297,7 @@ func encodeAdminUsersRetrieveResponse(response AdminUsersRetrieveRes, w http.Res
 		return nil
 
 	case *AdminUsersRetrieveNotFound:
-		w.Header().Set("Content-Type", "application/json; charset=utf-8")
+		w.Header().Set("Content-Type", "application/problem+json")
 		w.WriteHeader(404)
 
 		e := new(jx.Encoder)
@@ -261,7 +336,7 @@ func encodeAdminUsersUpdateResponse(response AdminUsersUpdateRes, w http.Respons
 		return nil
 
 	case *AdminUsersUpdateBadRequest:
-		w.Header().Set("Content-Type", "application/json; charset=utf-8")
+		w.Header().Set("Content-Type", "application/problem+json")
 		w.WriteHeader(400)
 
 		e := new(jx.Encoder)
@@ -273,7 +348,7 @@ func encodeAdminUsersUpdateResponse(response AdminUsersUpdateRes, w http.Respons
 		return nil
 
 	case *AdminUsersUpdateNotFound:
-		w.Header().Set("Content-Type", "application/json; charset=utf-8")
+		w.Header().Set("Content-Type", "application/problem+json")
 		w.WriteHeader(404)
 
 		e := new(jx.Encoder)
@@ -312,7 +387,7 @@ func encodeFacilitiesCreateResponse(response FacilitiesCreateRes, w http.Respons
 		return nil
 
 	case *FacilitiesCreateBadRequest:
-		w.Header().Set("Content-Type", "application/json; charset=utf-8")
+		w.Header().Set("Content-Type", "application/problem+json")
 		w.WriteHeader(400)
 
 		e := new(jx.Encoder)
@@ -324,7 +399,7 @@ func encodeFacilitiesCreateResponse(response FacilitiesCreateRes, w http.Respons
 		return nil
 
 	case *FacilitiesCreateForbidden:
-		w.Header().Set("Content-Type", "application/json; charset=utf-8")
+		w.Header().Set("Content-Type", "application/problem+json")
 		w.WriteHeader(403)
 
 		e := new(jx.Encoder)
@@ -348,7 +423,7 @@ func encodeFacilitiesDestroyResponse(response FacilitiesDestroyRes, w http.Respo
 		return nil
 
 	case *FacilitiesDestroyBadRequest:
-		w.Header().Set("Content-Type", "application/json; charset=utf-8")
+		w.Header().Set("Content-Type", "application/problem+json")
 		w.WriteHeader(400)
 
 		e := new(jx.Encoder)
@@ -360,7 +435,7 @@ func encodeFacilitiesDestroyResponse(response FacilitiesDestroyRes, w http.Respo
 		return nil
 
 	case *FacilitiesDestroyNotFound:
-		w.Header().Set("Content-Type", "application/json; charset=utf-8")
+		w.Header().Set("Content-Type", "application/problem+json")
 		w.WriteHeader(404)
 
 		e := new(jx.Encoder)
@@ -441,7 +516,7 @@ func encodeFacilitiesPartialUpdateResponse(response FacilitiesPartialUpdateRes, 
 		return nil
 
 	case *FacilitiesPartialUpdateBadRequest:
-		w.Header().Set("Content-Type", "application/json; charset=utf-8")
+		w.Header().Set("Content-Type", "application/problem+json")
 		w.WriteHeader(400)
 
 		e := new(jx.Encoder)
@@ -453,7 +528,7 @@ func encodeFacilitiesPartialUpdateResponse(response FacilitiesPartialUpdateRes, 
 		return nil
 
 	case *FacilitiesPartialUpdateNotFound:
-		w.Header().Set("Content-Type", "application/json; charset=utf-8")
+		w.Header().Set("Content-Type", "application/problem+json")
 		w.WriteHeader(404)
 
 		e := new(jx.Encoder)
@@ -492,7 +567,7 @@ func encodeFacilitiesRetrieveResponse(response FacilitiesRetrieveRes, w http.Res
 		return nil
 
 	case *ProblemDetails:
-		w.Header().Set("Content-Type", "application/json; charset=utf-8")
+		w.Header().Set("Content-Type", "application/problem+json")
 		w.WriteHeader(404)
 
 		e := new(jx.Encoder)
@@ -531,7 +606,7 @@ func encodeFacilitiesUpdateResponse(response FacilitiesUpdateRes, w http.Respons
 		return nil
 
 	case *FacilitiesUpdateBadRequest:
-		w.Header().Set("Content-Type", "application/json; charset=utf-8")
+		w.Header().Set("Content-Type", "application/problem+json")
 		w.WriteHeader(400)
 
 		e := new(jx.Encoder)
@@ -543,7 +618,7 @@ func encodeFacilitiesUpdateResponse(response FacilitiesUpdateRes, w http.Respons
 		return nil
 
 	case *FacilitiesUpdateNotFound:
-		w.Header().Set("Content-Type", "application/json; charset=utf-8")
+		w.Header().Set("Content-Type", "application/problem+json")
 		w.WriteHeader(404)
 
 		e := new(jx.Encoder)
@@ -582,7 +657,7 @@ func encodeMeRetrieveResponse(response MeRetrieveRes, w http.ResponseWriter) err
 		return nil
 
 	case *ProblemDetails:
-		w.Header().Set("Content-Type", "application/json; charset=utf-8")
+		w.Header().Set("Content-Type", "application/problem+json")
 		w.WriteHeader(401)
 
 		e := new(jx.Encoder)

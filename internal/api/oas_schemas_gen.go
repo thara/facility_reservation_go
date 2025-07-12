@@ -77,9 +77,186 @@ func (s *AdminUser) SetIsStaff(val OptBool) {
 	s.IsStaff = val
 }
 
-func (*AdminUser) adminUsersCreateRes()   {}
-func (*AdminUser) adminUsersRetrieveRes() {}
-func (*AdminUser) adminUsersUpdateRes()   {}
+func (*AdminUser) adminUsersCreateRes()        {}
+func (*AdminUser) adminUsersPartialUpdateRes() {}
+func (*AdminUser) adminUsersRetrieveRes()      {}
+func (*AdminUser) adminUsersUpdateRes()        {}
+
+// Ref: #/components/schemas/AdminUserMergePatchUpdate
+type AdminUserMergePatchUpdate struct {
+	// Required. 150 characters or fewer. Letters, digits and @/./+/-/_ only.
+	Username OptString                         `json:"username"`
+	Email    OptAdminUserMergePatchUpdateEmail `json:"email"`
+	// Designates whether the user can log into this admin site.
+	IsStaff OptAdminUserMergePatchUpdateIsStaff `json:"is_staff"`
+}
+
+// GetUsername returns the value of Username.
+func (s *AdminUserMergePatchUpdate) GetUsername() OptString {
+	return s.Username
+}
+
+// GetEmail returns the value of Email.
+func (s *AdminUserMergePatchUpdate) GetEmail() OptAdminUserMergePatchUpdateEmail {
+	return s.Email
+}
+
+// GetIsStaff returns the value of IsStaff.
+func (s *AdminUserMergePatchUpdate) GetIsStaff() OptAdminUserMergePatchUpdateIsStaff {
+	return s.IsStaff
+}
+
+// SetUsername sets the value of Username.
+func (s *AdminUserMergePatchUpdate) SetUsername(val OptString) {
+	s.Username = val
+}
+
+// SetEmail sets the value of Email.
+func (s *AdminUserMergePatchUpdate) SetEmail(val OptAdminUserMergePatchUpdateEmail) {
+	s.Email = val
+}
+
+// SetIsStaff sets the value of IsStaff.
+func (s *AdminUserMergePatchUpdate) SetIsStaff(val OptAdminUserMergePatchUpdateIsStaff) {
+	s.IsStaff = val
+}
+
+// AdminUserMergePatchUpdateEmail represents sum type.
+type AdminUserMergePatchUpdateEmail struct {
+	Type        AdminUserMergePatchUpdateEmailType // switch on this field
+	EmailString EmailString
+	Null        struct{}
+}
+
+// AdminUserMergePatchUpdateEmailType is oneOf type of AdminUserMergePatchUpdateEmail.
+type AdminUserMergePatchUpdateEmailType string
+
+// Possible values for AdminUserMergePatchUpdateEmailType.
+const (
+	EmailStringAdminUserMergePatchUpdateEmail AdminUserMergePatchUpdateEmailType = "EmailString"
+	NullAdminUserMergePatchUpdateEmail        AdminUserMergePatchUpdateEmailType = "struct{}"
+)
+
+// IsEmailString reports whether AdminUserMergePatchUpdateEmail is EmailString.
+func (s AdminUserMergePatchUpdateEmail) IsEmailString() bool {
+	return s.Type == EmailStringAdminUserMergePatchUpdateEmail
+}
+
+// IsNull reports whether AdminUserMergePatchUpdateEmail is struct{}.
+func (s AdminUserMergePatchUpdateEmail) IsNull() bool {
+	return s.Type == NullAdminUserMergePatchUpdateEmail
+}
+
+// SetEmailString sets AdminUserMergePatchUpdateEmail to EmailString.
+func (s *AdminUserMergePatchUpdateEmail) SetEmailString(v EmailString) {
+	s.Type = EmailStringAdminUserMergePatchUpdateEmail
+	s.EmailString = v
+}
+
+// GetEmailString returns EmailString and true boolean if AdminUserMergePatchUpdateEmail is EmailString.
+func (s AdminUserMergePatchUpdateEmail) GetEmailString() (v EmailString, ok bool) {
+	if !s.IsEmailString() {
+		return v, false
+	}
+	return s.EmailString, true
+}
+
+// NewEmailStringAdminUserMergePatchUpdateEmail returns new AdminUserMergePatchUpdateEmail from EmailString.
+func NewEmailStringAdminUserMergePatchUpdateEmail(v EmailString) AdminUserMergePatchUpdateEmail {
+	var s AdminUserMergePatchUpdateEmail
+	s.SetEmailString(v)
+	return s
+}
+
+// SetNull sets AdminUserMergePatchUpdateEmail to struct{}.
+func (s *AdminUserMergePatchUpdateEmail) SetNull(v struct{}) {
+	s.Type = NullAdminUserMergePatchUpdateEmail
+	s.Null = v
+}
+
+// GetNull returns struct{} and true boolean if AdminUserMergePatchUpdateEmail is struct{}.
+func (s AdminUserMergePatchUpdateEmail) GetNull() (v struct{}, ok bool) {
+	if !s.IsNull() {
+		return v, false
+	}
+	return s.Null, true
+}
+
+// NewNullAdminUserMergePatchUpdateEmail returns new AdminUserMergePatchUpdateEmail from struct{}.
+func NewNullAdminUserMergePatchUpdateEmail(v struct{}) AdminUserMergePatchUpdateEmail {
+	var s AdminUserMergePatchUpdateEmail
+	s.SetNull(v)
+	return s
+}
+
+// Designates whether the user can log into this admin site.
+// AdminUserMergePatchUpdateIsStaff represents sum type.
+type AdminUserMergePatchUpdateIsStaff struct {
+	Type AdminUserMergePatchUpdateIsStaffType // switch on this field
+	Bool bool
+	Null struct{}
+}
+
+// AdminUserMergePatchUpdateIsStaffType is oneOf type of AdminUserMergePatchUpdateIsStaff.
+type AdminUserMergePatchUpdateIsStaffType string
+
+// Possible values for AdminUserMergePatchUpdateIsStaffType.
+const (
+	BoolAdminUserMergePatchUpdateIsStaff AdminUserMergePatchUpdateIsStaffType = "bool"
+	NullAdminUserMergePatchUpdateIsStaff AdminUserMergePatchUpdateIsStaffType = "struct{}"
+)
+
+// IsBool reports whether AdminUserMergePatchUpdateIsStaff is bool.
+func (s AdminUserMergePatchUpdateIsStaff) IsBool() bool {
+	return s.Type == BoolAdminUserMergePatchUpdateIsStaff
+}
+
+// IsNull reports whether AdminUserMergePatchUpdateIsStaff is struct{}.
+func (s AdminUserMergePatchUpdateIsStaff) IsNull() bool {
+	return s.Type == NullAdminUserMergePatchUpdateIsStaff
+}
+
+// SetBool sets AdminUserMergePatchUpdateIsStaff to bool.
+func (s *AdminUserMergePatchUpdateIsStaff) SetBool(v bool) {
+	s.Type = BoolAdminUserMergePatchUpdateIsStaff
+	s.Bool = v
+}
+
+// GetBool returns bool and true boolean if AdminUserMergePatchUpdateIsStaff is bool.
+func (s AdminUserMergePatchUpdateIsStaff) GetBool() (v bool, ok bool) {
+	if !s.IsBool() {
+		return v, false
+	}
+	return s.Bool, true
+}
+
+// NewBoolAdminUserMergePatchUpdateIsStaff returns new AdminUserMergePatchUpdateIsStaff from bool.
+func NewBoolAdminUserMergePatchUpdateIsStaff(v bool) AdminUserMergePatchUpdateIsStaff {
+	var s AdminUserMergePatchUpdateIsStaff
+	s.SetBool(v)
+	return s
+}
+
+// SetNull sets AdminUserMergePatchUpdateIsStaff to struct{}.
+func (s *AdminUserMergePatchUpdateIsStaff) SetNull(v struct{}) {
+	s.Type = NullAdminUserMergePatchUpdateIsStaff
+	s.Null = v
+}
+
+// GetNull returns struct{} and true boolean if AdminUserMergePatchUpdateIsStaff is struct{}.
+func (s AdminUserMergePatchUpdateIsStaff) GetNull() (v struct{}, ok bool) {
+	if !s.IsNull() {
+		return v, false
+	}
+	return s.Null, true
+}
+
+// NewNullAdminUserMergePatchUpdateIsStaff returns new AdminUserMergePatchUpdateIsStaff from struct{}.
+func NewNullAdminUserMergePatchUpdateIsStaff(v struct{}) AdminUserMergePatchUpdateIsStaff {
+	var s AdminUserMergePatchUpdateIsStaff
+	s.SetNull(v)
+	return s
+}
 
 type AdminUsersCreateBadRequest ProblemDetails
 
@@ -121,6 +298,22 @@ func (*AdminUsersListOKApplicationJSON) adminUsersListRes() {}
 type AdminUsersListUnauthorized ProblemDetails
 
 func (*AdminUsersListUnauthorized) adminUsersListRes() {}
+
+type AdminUsersPartialUpdateBadRequest ProblemDetails
+
+func (*AdminUsersPartialUpdateBadRequest) adminUsersPartialUpdateRes() {}
+
+type AdminUsersPartialUpdateForbidden ProblemDetails
+
+func (*AdminUsersPartialUpdateForbidden) adminUsersPartialUpdateRes() {}
+
+type AdminUsersPartialUpdateNotFound ProblemDetails
+
+func (*AdminUsersPartialUpdateNotFound) adminUsersPartialUpdateRes() {}
+
+type AdminUsersPartialUpdateUnauthorized ProblemDetails
+
+func (*AdminUsersPartialUpdateUnauthorized) adminUsersPartialUpdateRes() {}
 
 type AdminUsersRetrieveForbidden ProblemDetails
 
@@ -221,6 +414,98 @@ func (*FacilitiesUpdateBadRequest) facilitiesUpdateRes() {}
 type FacilitiesUpdateNotFound ProblemDetails
 
 func (*FacilitiesUpdateNotFound) facilitiesUpdateRes() {}
+
+// NewOptAdminUserMergePatchUpdateEmail returns new OptAdminUserMergePatchUpdateEmail with value set to v.
+func NewOptAdminUserMergePatchUpdateEmail(v AdminUserMergePatchUpdateEmail) OptAdminUserMergePatchUpdateEmail {
+	return OptAdminUserMergePatchUpdateEmail{
+		Value: v,
+		Set:   true,
+	}
+}
+
+// OptAdminUserMergePatchUpdateEmail is optional AdminUserMergePatchUpdateEmail.
+type OptAdminUserMergePatchUpdateEmail struct {
+	Value AdminUserMergePatchUpdateEmail
+	Set   bool
+}
+
+// IsSet returns true if OptAdminUserMergePatchUpdateEmail was set.
+func (o OptAdminUserMergePatchUpdateEmail) IsSet() bool { return o.Set }
+
+// Reset unsets value.
+func (o *OptAdminUserMergePatchUpdateEmail) Reset() {
+	var v AdminUserMergePatchUpdateEmail
+	o.Value = v
+	o.Set = false
+}
+
+// SetTo sets value to v.
+func (o *OptAdminUserMergePatchUpdateEmail) SetTo(v AdminUserMergePatchUpdateEmail) {
+	o.Set = true
+	o.Value = v
+}
+
+// Get returns value and boolean that denotes whether value was set.
+func (o OptAdminUserMergePatchUpdateEmail) Get() (v AdminUserMergePatchUpdateEmail, ok bool) {
+	if !o.Set {
+		return v, false
+	}
+	return o.Value, true
+}
+
+// Or returns value if set, or given parameter if does not.
+func (o OptAdminUserMergePatchUpdateEmail) Or(d AdminUserMergePatchUpdateEmail) AdminUserMergePatchUpdateEmail {
+	if v, ok := o.Get(); ok {
+		return v
+	}
+	return d
+}
+
+// NewOptAdminUserMergePatchUpdateIsStaff returns new OptAdminUserMergePatchUpdateIsStaff with value set to v.
+func NewOptAdminUserMergePatchUpdateIsStaff(v AdminUserMergePatchUpdateIsStaff) OptAdminUserMergePatchUpdateIsStaff {
+	return OptAdminUserMergePatchUpdateIsStaff{
+		Value: v,
+		Set:   true,
+	}
+}
+
+// OptAdminUserMergePatchUpdateIsStaff is optional AdminUserMergePatchUpdateIsStaff.
+type OptAdminUserMergePatchUpdateIsStaff struct {
+	Value AdminUserMergePatchUpdateIsStaff
+	Set   bool
+}
+
+// IsSet returns true if OptAdminUserMergePatchUpdateIsStaff was set.
+func (o OptAdminUserMergePatchUpdateIsStaff) IsSet() bool { return o.Set }
+
+// Reset unsets value.
+func (o *OptAdminUserMergePatchUpdateIsStaff) Reset() {
+	var v AdminUserMergePatchUpdateIsStaff
+	o.Value = v
+	o.Set = false
+}
+
+// SetTo sets value to v.
+func (o *OptAdminUserMergePatchUpdateIsStaff) SetTo(v AdminUserMergePatchUpdateIsStaff) {
+	o.Set = true
+	o.Value = v
+}
+
+// Get returns value and boolean that denotes whether value was set.
+func (o OptAdminUserMergePatchUpdateIsStaff) Get() (v AdminUserMergePatchUpdateIsStaff, ok bool) {
+	if !o.Set {
+		return v, false
+	}
+	return o.Value, true
+}
+
+// Or returns value if set, or given parameter if does not.
+func (o OptAdminUserMergePatchUpdateIsStaff) Or(d AdminUserMergePatchUpdateIsStaff) AdminUserMergePatchUpdateIsStaff {
+	if v, ok := o.Get(); ok {
+		return v
+	}
+	return d
+}
 
 // NewOptBool returns new OptBool with value set to v.
 func NewOptBool(v bool) OptBool {

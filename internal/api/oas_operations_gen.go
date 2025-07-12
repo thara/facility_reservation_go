@@ -9,6 +9,7 @@ const (
 	AdminUsersCreateOperation        OperationName = "AdminUsersCreate"
 	AdminUsersDestroyOperation       OperationName = "AdminUsersDestroy"
 	AdminUsersListOperation          OperationName = "AdminUsersList"
+	AdminUsersPartialUpdateOperation OperationName = "AdminUsersPartialUpdate"
 	AdminUsersRetrieveOperation      OperationName = "AdminUsersRetrieve"
 	AdminUsersUpdateOperation        OperationName = "AdminUsersUpdate"
 	FacilitiesCreateOperation        OperationName = "FacilitiesCreate"

@@ -81,6 +81,72 @@ func decodeAdminUsersDestroyParams(args [1]string, argsEscaped bool, r *http.Req
 	return params, nil
 }
 
+// AdminUsersPartialUpdateParams is parameters of admin_users_partial_update operation.
+type AdminUsersPartialUpdateParams struct {
+	// A unique integer value identifying this user.
+	ID int
+}
+
+func unpackAdminUsersPartialUpdateParams(packed middleware.Parameters) (params AdminUsersPartialUpdateParams) {
+	{
+		key := middleware.ParameterKey{
+			Name: "id",
+			In:   "path",
+		}
+		params.ID = packed[key].(int)
+	}
+	return params
+}
+
+func decodeAdminUsersPartialUpdateParams(args [1]string, argsEscaped bool, r *http.Request) (params AdminUsersPartialUpdateParams, _ error) {
+	// Decode path: id.
+	if err := func() error {
+		param := args[0]
+		if argsEscaped {
+			unescaped, err := url.PathUnescape(args[0])
+			if err != nil {
+				return errors.Wrap(err, "unescape path")
+			}
+			param = unescaped
+		}
+		if len(param) > 0 {
+			d := uri.NewPathDecoder(uri.PathDecoderConfig{
+				Param:   "id",
+				Value:   param,
+				Style:   uri.PathStyleSimple,
+				Explode: false,
+			})
+
+			if err := func() error {
+				val, err := d.DecodeValue()
+				if err != nil {
+					return err
+				}
+
+				c, err := conv.ToInt(val)
+				if err != nil {
+					return err
+				}
+
+				params.ID = c
+				return nil
+			}(); err != nil {
+				return err
+			}
+		} else {
+			return validate.ErrFieldRequired
+		}
+		return nil
+	}(); err != nil {
+		return params, &ogenerrors.DecodeParamError{
+			Name: "id",
+			In:   "path",
+			Err:  err,
+		}
+	}
+	return params, nil
+}
+
 // AdminUsersRetrieveParams is parameters of admin_users_retrieve operation.
 type AdminUsersRetrieveParams struct {
 	// A unique integer value identifying this user.

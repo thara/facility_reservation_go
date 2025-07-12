@@ -113,12 +113,16 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 							s.handleAdminUsersRetrieveRequest([1]string{
 								args[0],
 							}, elemIsEscaped, w, r)
+						case "PATCH":
+							s.handleAdminUsersPartialUpdateRequest([1]string{
+								args[0],
+							}, elemIsEscaped, w, r)
 						case "PUT":
 							s.handleAdminUsersUpdateRequest([1]string{
 								args[0],
 							}, elemIsEscaped, w, r)
 						default:
-							s.notAllowed(w, r, "DELETE,GET,PUT")
+							s.notAllowed(w, r, "DELETE,GET,PATCH,PUT")
 						}
 
 						return
@@ -375,6 +379,14 @@ func (s *Server) FindPath(method string, u *url.URL) (r Route, _ bool) {
 							r.name = AdminUsersRetrieveOperation
 							r.summary = "Retrieve a user by ID"
 							r.operationID = "admin_users_retrieve"
+							r.pathPattern = "/api/v1/admin/users/{id}/"
+							r.args = args
+							r.count = 1
+							return r, true
+						case "PATCH":
+							r.name = AdminUsersPartialUpdateOperation
+							r.summary = "Partially update a user"
+							r.operationID = "admin_users_partial_update"
 							r.pathPattern = "/api/v1/admin/users/{id}/"
 							r.args = args
 							r.count = 1

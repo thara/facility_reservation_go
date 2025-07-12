@@ -40,6 +40,15 @@ func (UnimplementedHandler) AdminUsersList(ctx context.Context) (r AdminUsersLis
 	return r, ht.ErrNotImplemented
 }
 
+// AdminUsersPartialUpdate implements admin_users_partial_update operation.
+//
+// Update select fields of a user. Admin access required.
+//
+// PATCH /api/v1/admin/users/{id}/
+func (UnimplementedHandler) AdminUsersPartialUpdate(ctx context.Context, req *AdminUserMergePatchUpdate, params AdminUsersPartialUpdateParams) (r AdminUsersPartialUpdateRes, _ error) {
+	return r, ht.ErrNotImplemented
+}
+
 // AdminUsersRetrieve implements admin_users_retrieve operation.
 //
 // Fetch details of a specific user by ID. Admin access required.

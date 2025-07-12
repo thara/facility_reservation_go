@@ -26,6 +26,12 @@ type Handler interface {
 	//
 	// GET /api/v1/admin/users/
 	AdminUsersList(ctx context.Context) (AdminUsersListRes, error)
+	// AdminUsersPartialUpdate implements admin_users_partial_update operation.
+	//
+	// Update select fields of a user. Admin access required.
+	//
+	// PATCH /api/v1/admin/users/{id}/
+	AdminUsersPartialUpdate(ctx context.Context, req *AdminUserMergePatchUpdate, params AdminUsersPartialUpdateParams) (AdminUsersPartialUpdateRes, error)
 	// AdminUsersRetrieve implements admin_users_retrieve operation.
 	//
 	// Fetch details of a specific user by ID. Admin access required.

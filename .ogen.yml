@@ -16,3 +16,7 @@ generator:
     disable_all: true
   ignore_not_implemented: ["all"]
   convenient_errors: "auto"
+
+  content_type_aliases:
+    application/problem+json: "application/json"
+    application/merge-patch+json: "application/json"
